@@ -1,0 +1,24 @@
+# --- Generated 3D exports (only .scad sources are committed) ---
+*.stl
+*.3mf
+*.obj
+*.amf
+*.dxf
+*.svg
+
+# --- OpenSCAD backups ---
+*~
+*.bak
+
+# --- Generated preview images, EXCEPT the committed docs screenshots ---
+*.png
+!docs/img/*.png
+
+# --- OS cruft ---
+.DS_Store
+
+# --- AI assistant config / tooling (not part of the project) ---
+CLAUDE.md
+GEMINI.md
+AGENTS.md
+.claude/
