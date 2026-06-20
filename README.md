@@ -88,6 +88,12 @@ you drive an M3 straight into the PETG only where a module (or standoff) lands:
 
 ![Baseplate self-tap pilot grid (one quadrant)](docs/img/baseplate_grid.png)
 
+The four quadrants **butt together** and are tied by flat **`seam_splice`** bars
+(red) that bolt into the grid on each side of a seam — slotted holes absorb
+print slop, no interlock to fight:
+
+![Four baseplate quadrants joined by seam splices](docs/img/baseplate_assembly.png)
+
 Full mechanical spec, joinery, BOM, and print-plate layout: **[`CASE_DESIGN.md`](CASE_DESIGN.md)**.
 
 ---

@@ -72,10 +72,11 @@ module main_assembly() {
             translate([ex, ey, 0])
                 baseplate_quad(q[0], q[1]);
     }
-    // seam splice bars tie the quadrants across the seams (bolt into the grid)
+    // seam splice bars tie the quadrants across BOTH seams (bolt into the grid).
+    // Mostly hidden under the board here — see docs/img/baseplate_assembly.png.
     if (EXPLODE == 0) {
-        color("#cfcfcf") translate([90, 40, FLOOR]) seam_splice();
-        color("#cfcfcf") translate([90, 150, FLOOR]) seam_splice();
+        for (y = [40, 150]) color("#cfcfcf") translate([90, y, FLOOR]) seam_splice();      // X-seam
+        for (x = [50, 170]) color("#cfcfcf") translate([x, 90, FLOOR]) rotate([0,0,90]) seam_splice(); // Y-seam
     }
 
     // --- Faceplate (two tiles), in front of the body. Explodes -Y. ---
