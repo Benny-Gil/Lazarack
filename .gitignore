@@ -1,5 +1,6 @@
 # --- Generated 3D exports (only .scad sources are committed) ---
 *.stl
+!stl/*.stl                 # ...except the exported printable set in stl/
 *.3mf
 *.obj
 *.amf
