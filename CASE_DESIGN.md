@@ -1,9 +1,10 @@
 # Modular Laptop Motherboard Server Case — Design Spec
 
-A 3D-printed 2U enclosure that mounts a **Dell Inspiron 15-5558/5559**
+A 3D-printed **1U** enclosure that mounts a **Dell Inspiron 15-5558/5559**
 motherboard into a **NiH "DIY 10-inch" cage-nut server rack**
-(Printables #1634385). All structural parts print on a **Creality Ender 3
-V3 SE** (bed 220 x 220 x 250 mm) in **PETG**, flat, with no supports.
+(Printables #1634385). All structural parts print on a **low-accuracy
+Creality Ender 3 V3 SE** (bed 220 x 220 x 250 mm) in **PETG**, flat, with
+no supports.
 
 The full parametric model lives in `parts/*.scad` (one module per printed
 part), shares one frozen contract in `parts/params.scad`, and is joined by
@@ -12,88 +13,114 @@ parts with no transforms.
 
 ---
 
+## Design language — LOOSE-FIT, BOLT-TIGHT
+
+This is the **Round-2 redesign**, retargeted at a printer that cannot be
+trusted to hit dimensions. The single governing principle:
+
+> **Nothing relies on a dimensionally accurate print to mate. Gaps absorb
+> slop; bolts pull seams flush.**
+
+Every mating seam carries `FIT_CLEARANCE = 0.5 mm` of deliberate gap. Seams
+are not press-fit interlocks — they are **bolted** flush with `seam_splice`
+bars and grid screws. The board is held by **grid-placed standoffs and edge
+clips**, not by fixed standoffs that demand a hole hit exactly. The front
+and rear panels ship **blank** and are **drilled to the real board after a
+test fit**. The result: a misjudged dimension costs a drill bit or a
+relocated standoff, never a reprint.
+
+---
+
 ## Board Analysis
 
 | Parameter | Value |
 |---|---|
 | Board | Dell Inspiron 15-5558 / 5559 motherboard |
-| Footprint | ~235 mm (depth) x 170 mm (width) x ~2 mm |
-| Fan | Blower (right side, ~70 mm), heatpipe-fed |
-| Front I/O (Edge-alpha) | HDMI + USB-A x2 + blower **exhaust** |
+| Footprint | **near-square ~203 mm (X) x 197 mm (Y) x ~1 mm** |
+| Fan | Blower (side), heatpipe-fed |
+| Front I/O (Edge-alpha) | HDMI + USB-A x2 + blower **exhaust** (drilled into io_subplate) |
 | Rear I/O (Edge-beta) | USB-C power-in (barrel jack replaced) + SD reader + 3.5 mm audio |
-| Storage | NGFF (M.2) onboard + SATA ribbon to a 2.5" SSD |
-| Mounting | 4 corner holes + 1 center; **M.2 standoff is missing** (added by a printed retainer) |
+| Storage | NGFF (M.2) onboard + SATA to a 2.5" SSD on the mezzanine |
+| Mounting | corner + center holes; **M.2 standoff is missing** (added by a printed retainer). Board held by grid-placed M2.5 standoffs + edge clips, not fixed posts |
 
 > Every uncertain real-world dimension is a `// MEASURE` placeholder in
 > `params.scad` with a sane default, so the model renders today. Caliper the
-> board and edit **only `params.scad`**.
+> board and edit **only `params.scad`**. Because the panels are drilled to
+> fit, port positions are the most forgiving numbers in the file.
 
 ---
 
-## Target Form Factor — 2U, 10" rack
+## Target Form Factor — 1U, 10" rack
 
 | Dimension | Value |
 |---|---|
 | Rack standard | NiH DIY 10" cage-nut rack (Printables #1634385) |
-| Height | **2U = 88.9 mm** (gives blower + cabling headroom) |
-| Structural body width | 190 mm (X: 0..190) |
-| Faceplate width | 254 mm (full rack width, X -32..222) |
-| Interior depth | 239 mm (front tile + rear tile, 25 mm rabbet-lap) |
-| Rack fasteners | M5 cage-nut **clearance** holes (EIA-310 within-U pattern) |
+| Height | **1U = 44.45 mm** (`EXT_HEIGHT`); side walls `UPSTAND_H` = 40 mm, faceplate panel `FACE_H` = 43.66 mm |
+| Structural body width | `BODY_W` = 212 mm (X: 0..212), centerline `BODY_CX` = 106 |
+| Interior depth | `DEPTH` = 210 mm |
+| Faceplate width | `FACE_W` = 254 mm (full rack width, X -21..233) |
+| Rack fasteners | **M5** cage-nut clearance holes; three 1U face holes per column at Z = 6.35 / 22.225 / 38.1 mm (`EIA_FACE_HOLES_Z`) |
 
 ### Shared assembly coordinate frame
 Origin `(0,0,0)` = **front-bottom-left interior corner** of the chassis.
 `+X` width (left->right), `+Y` depth (front->rear, Y=0 is the rack-front
 interior face), `+Z` height (bottom->top). Every part is modeled directly
-in this frame; `main.scad` does no transforms. Board is centered in X
-(X 10..180), resting on M2.5 standoffs at Z = `FLOOR + STANDOFF_H` = 8 mm.
+in this frame; `main.scad` does no transforms. The board PCB underside sits
+at `BOARD_Z` = 8 mm (`FLOOR` 3 + `STANDOFF_H` 5).
 
 ---
 
-## The 9 Printed Parts
+## The Printed Parts
 
-| # | File / module | Assembly bbox (mm) | Role |
-|---|---|---|---|
-| 1 | `baseplate_front.scad` -> `baseplate_front()` | 190 x 122 x 86 | Floor + L/R wall upstands + front faceplate lip + 2 front M2.5 standoffs + front half of the M3 grid; rear edge = **rabbet-lap MALE** |
-| 2 | `baseplate_rear.scad` -> `baseplate_rear()` | 190 x 142 x 86 | Floor + upstands + rear-panel lip + 3 center/rear M2.5 standoffs + M.2 post pad + rear half of grid; front edge = **rabbet-lap FEMALE** |
-| 3 | `faceplate_left.scad` -> `faceplate_left()` | 127 x 95 x 4 | Left half of the 254 faceplate; whole **left M5 rack column** (X -23.2625); left io-window; center seam = **dovetail MALE** + M3 pin-bolt + 2 dowels |
-| 4 | `faceplate_right.scad` -> `faceplate_right()` | 127 x 95 x 4 | Right half; whole **right M5 column** (X 213.2625); center seam = **dovetail FEMALE** |
-| 5 | `io_subplate.scad` -> `io_subplate()` | 120 x 70 x 3 | Swappable front insert (4x M3). `IO_VARIANT`: `"default"` (HDMI + USB-A x2 + louvered exhaust) or `"rj45"` (adds front RJ45) |
-| 6 | `m2_retainer.scad` -> `m2_retainer()` | 16 x 16 x 10 | Gusseted M2.5 post supplying the **missing M.2 standoff**; foot 2x M3 onto grid, top M2.5 insert |
-| 7 | `rear_panel.scad` -> `rear_panel()` | 190 x 95 x 4 | USB-C power-in + SD + 3.5 mm audio cutouts; tongue-and-groove into rear lip; side edges slot into wall-top grooves |
-| 8 | `ssd_cage.scad` -> `ssd_cage()` *(optional)* | 105 x 75 x 16 | 2.5" SATA tray (JEITA 100 x 70 x 7), 4x M3 feet onto grid beside the board |
-| 9 | `lid.scad` -> `lid_front()`, `lid_rear()` *(optional)* | 190 x 118 x 3 and 190 x 142 x 3 | Vented 2U top in two tiles; thumb-screw to wall-top inserts; lap each other at the depth seam |
+| # | File / module | Role |
+|---|---|---|
+| 1–4 | `baseplate.scad` -> `baseplate_quad(qx,qy)` (×4) | Structural floor split into **four bed-friendly quadrants** (qx,qy ∈ {0,1}), each with its integral side/floor walls and its share of the 15 mm M3 self-tap pilot grid. No fixed standoffs. |
+| – | `baseplate.scad` -> `seam_splice(span)` | Flat bar that bolts **across** a quadrant seam into the grid on both sides — the "bolt-tight" element that pulls a loose seam flush. |
+| 5 | `faceplate_left.scad` -> `faceplate_left()` | Left half of the 254 faceplate; whole **left M5 rack column** (`M5_X_LEFT`); left half of the io-window. Split at `FACE_SPLIT_X` = 106. |
+| 6 | `faceplate_right.scad` -> `faceplate_right()` | Right half; whole **right M5 column** (`M5_X_RIGHT`); right half of the io-window. |
+| 7 | `io_subplate.scad` -> `io_subplate()` | **Blank** swappable front insert (`IO_SUB_W` 130 x `IO_SUB_H` 32 x `IO_SUB_T` 3) filling the faceplate window. Ports (HDMI / USB-A / exhaust) are **drilled by the user** after a fit check. |
+| 8 | `m2_retainer.scad` -> `m2_retainer()` | Gusseted M2.5 post supplying the **missing M.2 standoff**; foot bolts to the grid, top takes an M2.5 insert. |
+| 9 | `rear_panel.scad` -> `rear_panel()` | **Blank** rear panel (`REAR_W` 212 x `REAR_H` 40 x `REAR_T` 4). USB-C / SD / audio cutouts **drilled later**. |
+| 10 | `ssd_mezzanine.scad` -> `ssd_mezzanine()` *(opt)* | 2.5" SATA drive carrier on stilts **above** the board, bolted to the grid (keeps the floor clear). |
+| 11 | `lid.scad` -> `lid_front()`, `lid_rear()` *(opt)* | Vented **1U** top in two tiles. |
+| – | `m25_grid_insert.scad` -> `m25_grid_insert(h)` | Grid-dropped M2.5 board standoff — placed wherever the board's holes land on the pilot grid. The tolerance-first replacement for fixed standoffs. |
+| – | `board_edge_clip.scad` -> `board_edge_clip(reach)` | Finger that reaches over and traps the board edge — board retention that needs no precise hole. |
 
-All 9 fit within the 190 mm print limit in both bed-plane axes and print
-largest-face-down with no supports.
+Every part fits within the ~190 mm print limit in both bed-plane axes and
+prints largest-face-down with no supports.
 
 ---
 
 ## Joinery & the Common M3 Grid Interface
 
 The single interoperability standard is **one 15 mm-pitch M3 self-tap pilot
-grid** on the baseplate top, continuous across the depth lap. The grid points
-are blind pilot holes (Ø2.5 mm) you screw an M3 directly into (PETG self-taps)
-— **no heat-set inserts in the grid**, and the floor stays flat. The M.2
-retainer, SSD cage, io_subplate (into the faceplate), panels, and lid all bolt
-to this grid; you only tap the few points each module actually uses. Heat-set
-inserts are reserved for the structural **seams** (depth lap, faceplate,
-panels, lid, M2.5 standoffs).
+grid** (`GRID_PITCH` 15, origin `GRID_X0`/`GRID_Y0` = 12.5, pilots Ø`GRID_PILOT_D`
+2.5 x `GRID_PILOT_DEPTH` 2.4 mm) on the quadrant floors. The grid points are
+blind pilot holes you screw an M3 directly into (PETG self-taps) — **no
+heat-set inserts in the grid**, and the floor stays flat. Everything bolts to
+this grid: the seam splices, the M.2 retainer, SSD mezzanine, board standoffs
+(`m25_grid_insert`), edge clips. You only tap the few points each item
+actually uses.
+
+The loose-fit/bolt-tight rule means seams **never** depend on an accurate
+print. Each seam has a `FIT_CLEARANCE` (0.5 mm) gap and is closed by a bolted
+element rather than an interference fit. `CHAMFER` (0.8 mm) breaks edges so
+parts self-locate as bolts draw them together.
 
 Reusable joints live in `lib/joinery.scad` (parametric — they take explicit
 args, they do not read `params.scad`):
 
 | Joint | Where used |
 |---|---|
-| `rabbet_lap_male` / `rabbet_lap_female` | Front<->rear baseplate depth seam (25 mm lap, step = FLOOR/2) and the lid tile lap |
-| `dovetail_male` / `dovetail_female` | Faceplate centerline seam at X=95 (+ transverse M3 pin-bolt + 2 dowels) |
-| `dowel_hole` | Alignment pins across every seam |
-| `tongue` / `groove` | Panel-bottom flanges into baseplate lips; rear panel side edges into wall-top grooves |
+| `rabbet_lap_male` / `rabbet_lap_female` | Quadrant/lid seams where a stepped lap helps the splice register |
+| `dovetail_male` / `dovetail_female` | Optional registration on the faceplate centerline seam |
+| `dowel_hole` | Alignment pins / the blind pilot-grid bores |
+| `tongue` / `groove` | Panel-bottom flanges into baseplate lips |
 | `heatset_boss` | Structural seam/module joints (bores open **upward**, no bridging) |
-| M3 pilot grid (blind `dowel_hole` bores) | The 15 mm self-tap grid on the baseplate floor — screw straight in, no inserts |
-| `m25_standoff` | Board standoffs + M.2 post top (base fillet for side-load) |
-| `eia_face_holes` | M5 rack clearance holes through the faceplate (EIA within-U Z pattern) |
-| `louver_grille` | Louvered exhaust negative in the io_subplate |
+| `m3_grid` | The 15 mm self-tap grid stamped into each quadrant floor |
+| `m25_standoff` / `m25_grid_insert` | Board standoffs + M.2 post top, dropped on grid points |
+| `eia_face_holes` | M5 rack clearance holes through the faceplate (three 1U Z positions) |
+| `louver_grille` | Louvered vents in the lid tiles |
 
 **Printability rules enforced in geometry:** every part lies flat,
 largest-face-down, zero supports; no overhang > 45 deg without a
@@ -107,27 +134,29 @@ side-loaded posts.
 ```
             FRONT faceplate (Edge-alpha)          REAR panel (Edge-beta)
         ┌──────────────────────────────┐      ┌──────────────────────────────┐
-        │  io_subplate window:          │      │  USB-C power-in               │
-        │   HDMI                        │      │  SD card reader               │
-        │   USB-A x2                    │      │  3.5 mm audio                 │
-        │   louvered EXHAUST grille     │      │                               │
-        │   (future: + RJ45 swap)       │      │                               │
+        │  io_subplate window (BLANK):  │      │  rear_panel (BLANK):          │
+        │   HDMI            ← drilled    │      │   USB-C power-in  ← drilled   │
+        │   USB-A x2        ← drilled    │      │   SD card reader  ← drilled   │
+        │   blower EXHAUST  ← drilled    │      │   3.5 mm audio    ← drilled   │
         └──────────────────────────────┘      └──────────────────────────────┘
 ```
 
-- **Front** carries the blower exhaust plus the user-facing data ports via
-  the swappable `io_subplate`. Switch `IO_VARIANT="rj45"` to add a front
-  RJ45 cutout for a planned NGFF->1GbE NIC.
+- Both panels ship **blank**. After a test fit of the real board you mark and
+  **drill** each cutout — the loose-fit philosophy applied to I/O: you never
+  have to predict a port position to sub-millimeter and reprint if wrong.
+- **Front** carries the user-facing data ports plus the blower exhaust via the
+  swappable `io_subplate`.
 - **Rear** carries power-in and the low-traffic ports.
 
 ### Airflow
-Blower intake is internal; the case provides a **louvered exhaust** on the
-front io_subplate aligned to the fan outlet (`EXHAUST_POS` / `EXHAUST_SIZE`,
-both `// MEASURE`). No active case cooling — the laptop fan handles it.
+Blower intake is internal; the exhaust is **drilled** into the front
+io_subplate aligned to the fan outlet (`EXHAUST_POS` / `EXHAUST_SIZE`, both
+`// MEASURE`). Vented lid tiles assist; no active case cooling — the laptop
+fan handles it.
 
 ### Power
-The barrel jack was replaced with **USB-C power-in** on the rear panel
-(`USBC_POS` / `USBC_SIZE`, `// MEASURE`).
+The barrel jack was replaced with **USB-C power-in** drilled into the rear
+panel (`USBC_POS` / `USBC_SIZE`, `// MEASURE`).
 
 ---
 
@@ -135,21 +164,20 @@ The barrel jack was replaced with **USB-C power-in** on the rear panel
 
 PETG, **0.2 mm** layer, **3-4 walls**, **30-40% infill**, **no supports**,
 **brim** recommended for the tall thin faceplate/rear tiles. Every part
-prints flat (largest face down).
+prints flat (largest face down). The four small **quadrants** each fit the
+bed comfortably and are forgiving of warp because the splices, not tight
+interlocks, register the seams.
 
 | Part | Orientation on bed | Notes |
 |---|---|---|
-| `baseplate_front` / `baseplate_rear` | floor-down | Grid bores + standoff bores face up; print one per plate (190 mm wide) |
-| `faceplate_left` / `faceplate_right` | outer face down (lay the 4 mm Y-thickness onto the bed, plate flat) | Brim; M5/dovetail features need no support when laid flat |
-| `io_subplate` | back face down | Louvers cut through 3 mm — no overhang |
-| `rear_panel` | outer face down | Brim; tongue along bottom edge |
+| `baseplate_quad` ×4 | floor-down | Grid bores face up; one or two quads per plate |
+| `seam_splice` | flat | Tiny; batch several per plate |
+| `faceplate_left` / `faceplate_right` | outer face down | Brim; M5/window features need no support laid flat |
+| `io_subplate` | back face down | Ships blank — drill ports after fit |
+| `rear_panel` | outer face down | Brim; ships blank — drill ports after fit |
 | `m2_retainer` | foot down | Gussets print in-plane; M2.5 bore opens up |
-| `ssd_cage` *(opt)* | tray floor down | |
-| `lid_front` / `lid_rear` *(opt)* | flat | Vent slots + lap step |
-
-Suggested grouping: each baseplate tile gets its own print; the two
-faceplate tiles + io_subplate share a plate; rear_panel + m2_retainer +
-ssd_cage share a plate; the two lid tiles share a plate.
+| `ssd_mezzanine` *(opt)* | floor down | Stilts print up |
+| `lid_front` / `lid_rear` *(opt)* | flat | Vent slots in-plane |
 
 ---
 
@@ -158,59 +186,68 @@ ssd_cage share a plate; the two lid tiles share a plate.
 ### Printed parts (PETG)
 | Part | Qty |
 |---|---|
-| baseplate_front, baseplate_rear | 1 each |
+| baseplate_quad | 4 |
+| seam_splice | ~4 (one per seam, batch spares) |
 | faceplate_left, faceplate_right | 1 each |
-| io_subplate | 1 (+ spare variant optional) |
+| io_subplate (blank) | 1 |
 | m2_retainer | 1 |
-| rear_panel | 1 |
-| ssd_cage *(optional)* | 1 |
+| rear_panel (blank) | 1 |
+| m25_grid_insert (board standoffs) | ~5 (one per board hole) |
+| board_edge_clip | ~4 |
+| ssd_mezzanine *(optional)* | 1 |
 | lid_front, lid_rear *(optional)* | 1 each |
 
 ### Fasteners & hardware
 | Item | Qty (approx) | Use |
 |---|---|---|
-| M3 brass heat-set inserts (bore ~4.0 mm x 5 mm) | ~18-24 | Structural seams only (lap, faceplate, panels, lid) — **grid uses no inserts** |
-| M3 screws (8-10 mm) | ~24-30 | Mates into the M3 inserts (panels, lid, cage, retainer, seams) |
-| M2.5 brass heat-set inserts (bore ~3.4 mm x 4 mm) | 6 | Board standoffs (5) + M.2 post (1) |
+| M3 brass heat-set inserts (bore ~4.0 mm x 5 mm) | ~12-18 | Structural seam bosses only — **grid uses no inserts** |
+| M3 screws (8-10 mm) | ~30-40 | Seam splices, panels, mezzanine, retainer, clips — self-tap into the grid |
+| M2.5 brass heat-set inserts | ~6 | Board standoff tops (`m25_grid_insert`) + M.2 post |
 | M2.5 screws | ~6 | Board hold-down + M.2 retainer |
-| M5 rack cage nuts + screws | 8 | 4 per rack column (clearance holes, not inserts) |
-| Alignment dowel pins (~4 mm, e.g. brass/steel) | ~6 | Baseplate lap (2) + faceplate seam (2) + spares |
-| 2.5" SATA SSD *(optional)* | 1 | Mounted in ssd_cage with 4x M3 |
+| M5 rack cage nuts + screws | up to 6 | Three 1U face holes per column (clearance, not inserts) |
+| 2.5" SATA SSD *(optional)* | 1 | Mounted on ssd_mezzanine |
 
-> Insert/screw counts are upper-bound estimates; final counts depend on
-> which optional parts you print and on the resolved `// MEASURE` grid/hole
-> positions.
+> Counts are upper-bound estimates; final counts depend on which optional
+> parts you print and on the resolved `// MEASURE` board-hole positions
+> (which decide how many `m25_grid_insert` standoffs and clips you place).
 
 ---
 
 ## Assembly Order
 
-1. Heat-set M3 inserts into the **seam** bosses only (lap, faceplate, panels,
-   lid); M2.5 inserts into the standoff bosses and the M.2 post top. The
-   baseplate **grid needs no inserts** — you self-tap M3 into its pilot holes
-   only where a module lands.
-2. Press the **rabbet-lap** baseplate tiles together (2 dowels) and bolt the
-   4 lap M3 screws.
-3. Mount the motherboard on the standoffs; install the **m2_retainer** post
-   under the M.2 module and screw the M.2 down.
-4. Join the two **faceplate** tiles (dovetail + transverse M3 pin-bolt + 2
-   dowels); bolt the faceplate bottom flange to the front baseplate lip.
-5. Drop the **io_subplate** into the faceplate window (4x M3) — pick the
-   variant for your front I/O.
-6. Fit the **rear_panel** (tongue into rear lip, side edges into wall-top
-   grooves, 3-4x M3).
-7. *(Optional)* Bolt the **ssd_cage** to the grid and install the SSD.
-8. *(Optional)* Thumb-screw the two **lid** tiles to the wall-tops.
-9. Bolt into the 10" rack with M5 cage nuts (whole left/right columns).
+1. Heat-set M3 inserts into the **seam** bosses only; M2.5 inserts into the
+   standoff/retainer tops. The grid needs no inserts — self-tap M3 only where
+   something lands.
+2. Lay out the **four baseplate quadrants** and pull each seam flush with a
+   bolted **`seam_splice`** bar into the grid (loose-fit gaps close under the
+   bolts).
+3. Test-fit the board. Drop **`m25_grid_insert`** standoffs onto the grid
+   points nearest each board hole, and add **`board_edge_clip`** fingers to
+   trap the edges. Install the **m2_retainer** under the M.2 module.
+4. Bolt the two **faceplate** tiles to the front quadrants (each keeps a whole
+   M5 column).
+5. Drop the **blank io_subplate** into the faceplate window; with the board
+   present, **mark and drill** the front port + exhaust cutouts.
+6. Fit the **blank rear_panel**; mark and **drill** USB-C / SD / audio to the
+   board.
+7. *(Optional)* Bolt the **ssd_mezzanine** to the grid above the board and
+   install the SSD.
+8. *(Optional)* Add the two vented **lid** tiles.
+9. Bolt into the 10" rack with M5 cage nuts (whole left/right columns, three
+   1U holes each).
 
 ---
 
 ## Notes / Next Steps
 
 - **Caliper before printing the final run** — edit only `params.scad`:
-  board hole positions, M.2 connector + retainer distance, all I/O cutout
-  positions, and the `U_BOTTOM_Z` rack-datum vs chassis-floor offset.
-- **Confirm the EIA face-hole Z list** (`EIA_FACE_HOLES_Z`) lines up with
-  the physical rack U-grid before committing the faceplate.
+  board hole positions, M.2 connector + retainer distance, the exhaust/port
+  positions you'll drill, and the rack-datum vs chassis-floor offset.
+- **Confirm the EIA face-hole Z list** (`EIA_FACE_HOLES_Z` = 6.35 / 22.225 /
+  38.1) lines up with the physical 1U rack U-grid before committing the
+  faceplate.
 - **Verify USB-C power-in** wiring/handshake for the replaced barrel jack.
+- The legend-labeled render (`docs/img/assembly_labeled.png`) is from an
+  earlier revision and is **stale**; the unlabeled iso/exploded renders are
+  current.
 - STL/PNG outputs are gitignored — only the `.scad` sources are committed.
