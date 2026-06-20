@@ -20,8 +20,7 @@ $fs = 0.4;
 include <parts/params.scad>
 
 // --- The 9 printed parts (each pre-placed in the assembly frame) ---
-use <parts/baseplate_front.scad>   // baseplate_front()
-use <parts/baseplate_rear.scad>    // baseplate_rear()
+use <parts/baseplate.scad>         // baseplate_quad(qx,qy), seam_splice()
 use <parts/faceplate_left.scad>    // faceplate_left()
 use <parts/faceplate_right.scad>   // faceplate_right()
 use <parts/io_subplate.scad>       // io_subplate()
@@ -61,15 +60,20 @@ C_LID_REAR   = "#9edae5";   // 10 light-cyan  lid_rear
 
 module main_assembly() {
 
-    // --- Structural body: two baseplate tiles + integral walls ---
-    // Front tile pulls -Y, rear tile pulls +Y when exploded (split the lap).
-    color(C_BASE_FRONT)
-        translate([0, -EXPLODE, 0])
-            baseplate_front();
-
-    color(C_BASE_REAR)
-        translate([0, EXPLODE, 0])
-            baseplate_rear();
+    // --- Structural floor: 4 bed-friendly quadrants (no fixed standoffs;
+    //     board mounts on user-placed m25_grid_insert standoffs + edge clips) ---
+    for (q = [[0,0],[1,0],[0,1],[1,1]]) {
+        ex = (q[0] == 0 ? -EXPLODE : EXPLODE);
+        ey = (q[1] == 0 ? -EXPLODE : EXPLODE);
+        color(q[1] == 0 ? C_BASE_FRONT : C_BASE_REAR)
+            translate([ex, ey, 0])
+                baseplate_quad(q[0], q[1]);
+    }
+    // seam splice bars tie the quadrants across the seams (bolt into the grid)
+    if (EXPLODE == 0) {
+        color("#cfcfcf") translate([90, 40, FLOOR]) seam_splice();
+        color("#cfcfcf") translate([90, 150, FLOOR]) seam_splice();
+    }
 
     // --- Faceplate (two tiles), in front of the body. Explodes -Y. ---
     color(C_FACE_LEFT)
