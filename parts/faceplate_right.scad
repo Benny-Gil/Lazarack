@@ -54,7 +54,7 @@ FR_T         = FACE_T;                // 4    plate thickness (Y), at Y -4..0
 DT_DEPTH     = 8;                     // engagement depth across the seam (mm)
 DT_W_ROOT    = 12;                    // root width (along Z) at the seam plane
 DT_W_TIP     = 18;                    // tip width  (along Z), the locking flare
-DT_CLEAR     = 0.2;                   // female oversize per face (slide fit)
+DT_CLEAR     = FIT_CLEARANCE;         // female oversize per face (loose-fit printer)
 DT_Z         = FR_H/2;                // dovetail key center height (Z) // MEASURE
 
 // --- center-seam transverse M3 pin-bolt + dowels (match left tile) ---

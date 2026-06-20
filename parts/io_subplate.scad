@@ -66,27 +66,25 @@ module io_subplate() {
                 rotate([-90, 0, 0])
                     cylinder(h = IO_SUB_T + 2*EPS, d = M3_CLEAR);
 
-        // ---- HDMI-A port window ----
-        rect_window_c(HDMI_POS, HDMI_SIZE);
-
-        // ---- USB-A x2 (stacked: same size, two centers) ----
-        rect_window_c(USBA_POS_1, USBA_SIZE);
-        rect_window_c(USBA_POS_2, USBA_SIZE);
-
-        // ---- louvered blower EXHAUST grille ----
-        // louver_grille() returns the NEGATIVE slot solids; difference() it.
-        // It is modeled with its window lower-left at the local origin, slots
-        // cut through thickness t (Y). Translate to EXHAUST_POS lower-left and
-        // into the assembly frame. EXHAUST_POS is the window CENTER per params.
-        translate([ax + EXHAUST_POS[0] - EXHAUST_SIZE[0]/2,
-                   ay,
-                   az + EXHAUST_POS[1] - EXHAUST_SIZE[1]/2])
-            louver_grille(EXHAUST_SIZE[0], EXHAUST_SIZE[1], IO_SUB_T,
-                          n = 6, slat = 3, angle = 30, eps = EPS);
-
-        // ---- optional front RJ45 (only in the "rj45" variant) ----
-        if (IO_VARIANT == "rj45")
-            rect_window_c(RJ45_POS, RJ45_SIZE);
+        // Port cutouts only for the measured variants. The tolerance default
+        // "blank" leaves a SOLID insert the user drills once the real port
+        // positions are calipered, then reprints just this cheap part.
+        if (IO_VARIANT != "blank") {
+            // ---- HDMI-A port window ----
+            rect_window_c(HDMI_POS, HDMI_SIZE);
+            // ---- USB-A x2 (stacked: same size, two centers) ----
+            rect_window_c(USBA_POS_1, USBA_SIZE);
+            rect_window_c(USBA_POS_2, USBA_SIZE);
+            // ---- louvered blower EXHAUST grille ----
+            translate([ax + EXHAUST_POS[0] - EXHAUST_SIZE[0]/2,
+                       ay,
+                       az + EXHAUST_POS[1] - EXHAUST_SIZE[1]/2])
+                louver_grille(EXHAUST_SIZE[0], EXHAUST_SIZE[1], IO_SUB_T,
+                              n = 6, slat = 3, angle = 30, eps = EPS);
+            // ---- front RJ45 (only in the "rj45" variant) ----
+            if (IO_VARIANT == "rj45")
+                rect_window_c(RJ45_POS, RJ45_SIZE);
+        }
     }
 }
 

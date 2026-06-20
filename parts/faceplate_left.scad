@@ -56,6 +56,9 @@ DT_W_ROOT       = 12;                   // dovetail root width in X (top)
 DT_W_TIP        = 18;                   // dovetail tip  width in X (bottom)
 DT_ZSPAN        = 22;                   // dovetail Z extent (taper run)
 DT_Z_TOP        = FACE_H * 0.66;        // dovetail top Z (root edge)
+// NOTE: this centerline dovetail-seam geometry is still 2U-proportioned and
+// overshoots the 1U panel; it needs replacing with a bolted-overlap seam
+// (directive #8). Tracked as remaining work — kept manifold for now.
 DT_Z_BOT        = DT_Z_TOP - DT_ZSPAN;  // dovetail bottom Z (tip edge)
 SEAM_RAIL_W     = 6;                    // X-width of solid seam rail (frame)
 SEAM_BLOCK_T    = DT_DEPTH + 4;         // seam block depth into body (+Y)
