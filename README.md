@@ -116,7 +116,7 @@ appears in the renders above:
 
 | Donor board (photo) | Reference model |
 |---|---|
-| ![Donor motherboard](reference-images/motherboard-1.jpeg) | ![Reference board model](docs/img/reference_board.png) |
+| ![Donor motherboard](reference-images/photo-1.jpeg) | ![Reference board model](docs/img/reference_board.png) |
 
 ---
 

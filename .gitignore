@@ -10,9 +10,10 @@
 *~
 *.bak
 
-# --- Generated preview images, EXCEPT the committed docs screenshots ---
+# --- Generated preview images, EXCEPT committed docs + board reference shots ---
 *.png
 !docs/img/*.png
+!reference-images/*.png
 
 # --- OS cruft ---
 .DS_Store
