@@ -38,7 +38,7 @@ module.
 Everything bolts to **one shared 15 mm M3 self-tap pilot grid** on the baseplate,
 so modules are independently printable and swappable.
 
-![Exploded view](docs/img/assembly_exploded.png)
+![Exploded view with part legend](docs/img/assembly_labeled.png)
 
 | # | Part | Role |
 |---|---|---|
@@ -49,6 +49,11 @@ so modules are independently printable and swappable.
 | 7 | `rear_panel` | Rear I/O: USB-C power-in, SD reader, audio. |
 | 8 | `ssd_cage` *(opt)* | 2.5" SATA tray, bolts to the grid beside the board. |
 | 9 | `lid_front` / `lid_rear` *(opt)* | Vented 2U top in two tiles. |
+
+With the lid off, the board drops onto the M2.5 standoffs and the I/O lines up
+with the front faceplate:
+
+![Board mounted in the open chassis](docs/img/assembly_interior.png)
 
 The baseplate grid is **self-tapping pilot holes**, not a carpet of inserts —
 you drive an M3 straight into the PETG only where a module lands:
@@ -81,12 +86,13 @@ openscad -o baseplate_front.stl parts/baseplate_front.scad
 ### Layout
 
 ```
-main.scad              top-level assembly (unions all parts, no transforms)
-parts/params.scad      the frozen contract — ALL dimensions live here
-parts/*.scad           one printable module per file
-lib/joinery.scad       reusable parametric joints (dovetail, lap, grid, …)
-docs/img/              rendered previews
-reference-images/      photos of the donor board
+main.scad                 top-level assembly (unions all parts, no transforms)
+parts/params.scad         the frozen contract — ALL dimensions live here
+parts/*.scad              one printable module per file
+parts/reference_board.scad  visual-only board model (never printed)
+lib/joinery.scad          reusable parametric joints (dovetail, lap, grid, …)
+docs/img/                 rendered previews
+reference-images/         photos of the donor board
 ```
 
 ---
@@ -104,9 +110,13 @@ The model renders today on sane defaults, but anything tagged `// MEASURE` in
 
 Edit **only** `parts/params.scad` — every part derives from it.
 
-The donor board this was designed around:
+The donor board this was designed around — and the recognizable OpenSCAD
+reference model (`parts/reference_board.scad`, visual-only) built from it that
+appears in the renders above:
 
-![Donor motherboard](reference-images/motherboard-1.jpeg)
+| Donor board (photo) | Reference model |
+|---|---|
+| ![Donor motherboard](reference-images/motherboard-1.jpeg) | ![Reference board model](docs/img/reference_board.png) |
 
 ---
 
