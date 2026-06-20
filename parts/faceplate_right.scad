@@ -42,7 +42,7 @@ use <../lib/joinery.scad>
 FR_X0        = FACE_SPLIT_X;          // 95   tile inner (seam) edge
 FR_X1        = FACE_X1;               // 222  tile outer edge
 FR_W         = FR_X1 - FR_X0;         // 127  tile width (== FACE_TILE_W)
-FR_H         = 90;                    // tile height in Z (covers 2U holes+margin)
+FR_H         = FACE_H;                // tile height in Z (1U panel, covers 3 EIA holes)
 FR_T         = FACE_T;                // 4    plate thickness (Y), at Y -4..0
 
 // --- center-seam dovetail params (MUST match faceplate_left's male) ---

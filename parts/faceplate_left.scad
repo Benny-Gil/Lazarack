@@ -36,7 +36,8 @@ use <../lib/joinery.scad>
 
 
 // ---- derived local constants (NOT contract params) -------------------
-FACE_H          = UPSTAND_H;            // faceplate tile height (Z) ~86mm
+// FACE_H now comes from params.scad (1U front-panel height, 43.66mm) — the
+// faceplate panel is taller than the interior side walls (UPSTAND_H).
 TILE_X0         = FACE_X0;              // -32  left outer edge
 TILE_X1         = FACE_SPLIT_X;         //  95  center seam edge
 TILE_W          = TILE_X1 - TILE_X0;    // 127  = FACE_TILE_W

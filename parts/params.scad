@@ -34,26 +34,36 @@ INFILL           = 0.30;    // 30% infill (target)
 OVERHANG_MAX     = 45;      // deg; steeper requires chamfer/teardrop
 EPS              = 0.01;    // epsilon overlap for boolean co-planar faces
 
+// LOW-ACCURACY-PRINTER TOLERANCE — applied to EVERY mating feature so parts
+// still bolt together when the printer is dimensionally loose / warps.
+// "loose-fit, bolt-tight": gaps absorb slop, bolts pull seams flush.
+FIT_CLEARANCE    = 0.5;     // per-side gap on all matings (slot/lap/dowel/insert fit)
+CHAMFER          = 0.8;     // lead-in chamfer on holes/slots + bottom-edge relief
+// (M3_SLOT_W is derived in the FASTENERS section below, after M3_CLEAR.)
+
 
 // ---------------------------------------------------------------------
 // CHASSIS BODY (structural box: baseplate_front + baseplate_rear + walls)
 // ---------------------------------------------------------------------
-BODY_W           = 190;     // X extent of the structural body (X: 0..190)
+BODY_W           = 212;     // X extent of the structural body (board 203 + ~4.5/side)
+                            //   ⚠ near 10" rack usable width (~220 between rails);
+                            //   a board wider than ~206 won't fit a 10" rack flat.
 FLOOR            = 3;       // floor / baseplate thickness (Z: 0..FLOOR)
 WALL_T           = 3;       // integral side-wall upstand thickness (X walls)
 
 // --- 2U height ---
 U_HEIGHT         = 44.45;   // 1U in mm (EIA-310)
-N_U              = 2;       // chassis spans 2U
-EXT_HEIGHT       = 88.9;    // external 2U height (2 * 44.45)
-UPSTAND_H        = 86;      // integral side-wall upstand height (Z: 0..86)
+N_U              = 1;       // chassis spans 1U (tallest board part ~8.9mm)
+EXT_HEIGHT       = 44.45;   // external 1U height
+UPSTAND_H        = 40;      // integral side-wall upstand height (lid sits on top: 40+3=43 < 44.45)
+FACE_H           = 43.66;   // faceplate front-panel height (1U EIA panel, -0.79 binding margin)
 
 // --- Depth split (front tile / rear tile / overlap lap) ---
-DEPTH            = 239;     // interior depth, front face Y=0 .. rear Y=DEPTH
-FRONT_TILE_D     = 122;     // baseplate_front spans Y 0..122
-REAR_TILE_D      = 142;     // baseplate_rear spans Y (DEPTH-REAR_TILE) .. DEPTH
-LAP_LEN          = 25;      // stepped rabbet-lap overlap length (mm)
-LAP_Y_NOMINAL    = 122;     // nominal seam centre; lap region ~Y 110..135
+DEPTH            = 210;     // interior depth (board 197 + ~13 slack), Y 0..DEPTH
+FRONT_TILE_D     = 110;     // front quads span Y 0..110
+REAR_TILE_D      = 125;     // rear quads span Y (DEPTH-REAR_TILE) .. DEPTH
+LAP_LEN          = 25;      // overlap length (mm); 110+125-25 = 210
+LAP_Y_NOMINAL    = 110;     // nominal seam centre; lap region ~Y 85..110
                             //   front MALE step occupies Y (122-LAP_LEN)..122
                             //   = Y 97..122 ; rear FEMALE receives it.
 LAP_STEP_Z       = FLOOR/2; // rabbet step height = half floor (1.5mm)
@@ -64,11 +74,11 @@ LAP_STEP_Z       = FLOOR/2; // rabbet step height = half floor (1.5mm)
 //   235mm(Y, depth) x 170mm(X, width) x ~2mm, centered in X within BODY_W
 //   => board X 10..180 ; rests on M2.5 standoffs.
 // ---------------------------------------------------------------------
-BOARD_W_X        = 170;     // board extent in X (width)
-BOARD_D_Y        = 235;     // board extent in Y (depth)
-BOARD_T          = 2;       // board thickness (Z)
-BOARD_X0         = (BODY_W - BOARD_W_X) / 2;   // = 10  (board X 10..180)
-BOARD_Y0         = 2;       // MEASURE front clearance; board Y 2..237
+BOARD_W_X        = 203;     // board width  (X) = the I/O-edge length (8")  // MEASURE
+BOARD_D_Y        = 197;     // board depth  (Y) = I/O edge to back (7.5-8") // MEASURE
+BOARD_T          = 1;       // board thickness (Z) ~0.8-1mm                 // MEASURE
+BOARD_X0         = (BODY_W - BOARD_W_X) / 2;   // = 4.5 (board X 4.5..207.5, centered)
+BOARD_Y0         = 6;       // front clearance (slack for poor measurement); board Y 6..203
 STANDOFF_H       = 5;       // M2.5 standoff / boss height under board (Z)
 BOARD_Z          = FLOOR + STANDOFF_H;         // board underside Z
 
@@ -123,7 +133,8 @@ EIA_FACE_HOLES_Z = [ for (u=[0:N_U-1], o=EIA_U_OFFSETS)
 M3_INSERT_BORE   = 4.0;     // insert bore diameter (mm)  // MEASURE per insert
 M3_INSERT_DEPTH  = 5.0;     // insert bore depth (mm)
 M3_BOSS_OD       = 7.0;     // recommended boss outer diameter around bore
-M3_CLEAR         = 3.4;     // M3 screw clearance hole diameter
+M3_CLEAR         = 3.7;     // M3 screw clearance hole dia (generous for a loose printer)
+M3_SLOT_W        = M3_CLEAR + 2*FIT_CLEARANCE; // slotted-hole width for forgiving seams
 M3_HEAD_D        = 6.0;     // M3 cap-head clearance diameter (counterbore)
 
 // M2.5 (board standoffs + M.2 post):
@@ -150,8 +161,8 @@ M5_CLEAR         = 5.5;     // M5 clearance hole diameter
 GRID_PITCH       = 15;      // grid pitch (mm), both X and Y
 GRID_X0          = 12.5;    // first grid column X (origin of grid)  // MEASURE
 GRID_Y0          = 12.5;    // first grid row    Y (origin of grid)  // MEASURE
-GRID_COLS        = 12;      // columns spanning ~ X 12.5..177.5 (<=BODY_W)
-GRID_ROWS        = 16;      // rows spanning ~ Y 12.5..237.5 (<=DEPTH)
+GRID_COLS        = 13;      // columns spanning ~ X 12.5..192.5 (<=BODY_W 212)
+GRID_ROWS        = 13;      // rows spanning ~ Y 12.5..192.5 (<=DEPTH 210)
 GRID_PILOT_D     = 2.5;     // M3 self-tap pilot-hole diameter (screw bites PETG)
 GRID_PILOT_DEPTH = 2.4;     // blind pilot depth into FLOOR(3) -> leaves ~0.6mm
 GRID_CLEAR       = 8;       // min XY clearance grid pilot must keep from a boss
@@ -166,14 +177,14 @@ GRID_CLEAR       = 8;       // min XY clearance grid pilot must keep from a boss
 //   All cutout positions are LOCAL to the io_subplate (its own 0,0 = lower
 //   -left of the 120x70 insert) and are // MEASURE.
 // ---------------------------------------------------------------------
-IO_VARIANT       = "default";   // "default" | "rj45"
-IO_SUB_W         = 120;     // io_subplate width  (its X)
-IO_SUB_H         = 70;      // io_subplate height (its Z)
+IO_VARIANT       = "blank";     // "blank"(tolerance default) | "default" | "rj45"
+IO_SUB_W         = 130;     // io_subplate width  (its X) — generous for port slop
+IO_SUB_H         = 32;      // io_subplate height (its Z) — fits the 1U panel (43.66)
 IO_SUB_T         = 3;       // io_subplate thickness (its Y)
 
 // io_subplate window placement in the FACEPLATE (assembly frame):
-IO_WIN_X0        = 95 - 60; // = 35  window X 35..155 (centered on body CX) MEASURE
-IO_WIN_Z0        = 20;      // window bottom Z  // MEASURE
+IO_WIN_X0        = BODY_CX - IO_SUB_W/2; // window centered on the body centerline  MEASURE
+IO_WIN_Z0        = 6;       // window bottom Z (window 6..38, inside 1U panel) // MEASURE
 IO_SUB_M3        = [        // 4x M3 mount holes, LOCAL to io_subplate  MEASURE
     [6, 6], [IO_SUB_W-6, 6], [6, IO_SUB_H-6], [IO_SUB_W-6, IO_SUB_H-6]
 ];
@@ -191,8 +202,8 @@ RJ45_POS         = [22, 50];    RJ45_SIZE   = [16, 14];    // MEASURE (rj45 vari
 //   USB-C power-in (user replaced barrel jack) + SD reader + 3.5mm audio.
 //   Cutout positions LOCAL to rear_panel (its 0,0 = lower-left), // MEASURE.
 // ---------------------------------------------------------------------
-REAR_W           = 190;     // rear panel width  (X) = BODY_W
-REAR_H           = 95;      // rear panel height (Z)  (>=UPSTAND_H, capped 2U)
+REAR_W           = BODY_W;  // rear panel width  (X) = BODY_W (212)
+REAR_H           = UPSTAND_H; // rear panel height (Z) = wall height (1U, blank panel)
 REAR_T           = 4;       // rear panel thickness (Y), Y DEPTH..DEPTH+REAR_T
 USBC_POS         = [40, 30];   USBC_SIZE  = [10, 6];    // MEASURE USB-C power-in
 SD_POS           = [95, 30];   SD_SIZE    = [26, 4];    // MEASURE SD reader slot
