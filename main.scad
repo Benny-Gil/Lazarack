@@ -26,17 +26,20 @@ use <parts/faceplate_right.scad>   // faceplate_right()
 use <parts/io_subplate.scad>       // io_subplate()
 use <parts/m2_retainer.scad>       // m2_retainer()
 use <parts/rear_panel.scad>        // rear_panel()
-use <parts/ssd_cage.scad>          // ssd_cage()        (optional)
+use <parts/ssd_mezzanine.scad>     // ssd_mezzanine()   (optional)
 use <parts/lid.scad>               // lid_front(), lid_rear()  (optional)
+use <parts/m25_grid_insert.scad>   // m25_grid_insert()  (board standoff, illustrative)
+use <parts/board_edge_clip.scad>   // board_edge_clip()  (board retention, illustrative)
 use <parts/reference_board.scad>   // reference_board()  (visual ref, not printed)
 
 
 // ---------------------------------------------------------------------
 // VIEW TOGGLES
 // ---------------------------------------------------------------------
-SHOW_SSD   = true;   // include the optional 2.5" SSD cage
+SHOW_SSD   = true;   // include the optional 2.5" SSD mezzanine
 SHOW_LID   = true;   // include the optional vented 2U lid (two tiles)
 SHOW_BOARD = true;   // faint %ghost of the motherboard for reference
+SHOW_MOUNTS = true;  // illustrate a couple grid standoffs + edge clips on board
 
 // EXPLODE: 0 = assembled. >0 (mm) separates modules along their mating
 // axes for an exploded view. Try EXPLODE = 40.
@@ -53,7 +56,7 @@ C_FACE_RIGHT = "#8172b3";   // 4  purple      faceplate_right
 C_IO_SUB     = "#ccb974";   // 5  sand        io_subplate
 C_M2         = "#dd8452";   // 6  orange      m2_retainer
 C_REAR_PANEL = "#da70d6";   // 7  orchid      rear_panel
-C_SSD        = "#937860";   // 8  brown       ssd_cage
+C_SSD        = "#937860";   // 8  brown       ssd_mezzanine
 C_LID_FRONT  = "#4fb0c6";   // 9  cyan        lid_front
 C_LID_REAR   = "#9edae5";   // 10 light-cyan  lid_rear
 
@@ -101,11 +104,12 @@ module main_assembly() {
         translate([0, EXPLODE, 0])
             m2_retainer();
 
-    // --- Optional 2.5" SSD cage, beside the board on the front-tile grid. ---
+    // --- Optional 2.5" SSD mezzanine, on stilts ABOVE the board, bolted to
+    //     the front-tile grid. Explodes -Y with the front tile. ---
     if (SHOW_SSD)
         color(C_SSD)
             translate([0, -EXPLODE, 0])
-                ssd_cage();
+                ssd_mezzanine();
 
     // --- Optional vented 2U lid (two tiles) on the wall-tops. Explodes +Z;
     //     the two tiles also separate along Y like the baseplate lap. ---
@@ -122,6 +126,26 @@ module main_assembly() {
     // --- The motherboard (visual reference; sits on the standoffs) ---
     if (SHOW_BOARD)
         _board();
+
+    // --- Illustrative tolerance-first board mounting (not part of the
+    //     printed-panel count): a couple m25_grid_insert standoffs under the
+    //     board's nearest grid points, and a couple board_edge_clip fingers
+    //     trapping the board edge. Shows HOW the board is held. ---
+    if (SHOW_MOUNTS) {
+        // two grid standoffs at grid points near board corners
+        color("#b0a070")
+            translate([GRID_X0, GRID_Y0, FLOOR]) m25_grid_insert();
+        color("#b0a070")
+            translate([GRID_X0 + 12*GRID_PITCH, GRID_Y0, FLOOR]) m25_grid_insert();
+
+        // two edge clips: one on the front edge (finger reaching +Y over board
+        // front), one on the left edge (rotated to reach +X over board left)
+        color("#707070")
+            translate([GRID_X0 - 8, GRID_Y0 - 8, FLOOR]) board_edge_clip();
+        color("#707070")
+            translate([GRID_X0 + 12*GRID_PITCH + 8, GRID_Y0 - 8, FLOOR])
+                mirror([1, 0, 0]) board_edge_clip();
+    }
 }
 
 
