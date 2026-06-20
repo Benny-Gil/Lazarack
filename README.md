@@ -95,6 +95,7 @@ print slop, no interlock to fight:
 ![Four baseplate quadrants joined by seam splices](docs/img/baseplate_assembly.png)
 
 Full mechanical spec, joinery, BOM, and print-plate layout: **[`CASE_DESIGN.md`](CASE_DESIGN.md)**.
+Slicer settings (Ender 3 V3 SE · PETG): **[`SLICING.md`](SLICING.md)**.
 
 ---
 

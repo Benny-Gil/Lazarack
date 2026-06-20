@@ -13,9 +13,12 @@ Exported, ready-to-slice parts for the 1U case. **Regenerate after you edit
 
 ## Print settings (Ender 3 V3 SE, low-accuracy)
 
-PETG · 0.2 mm layer · 3–4 walls · ~30 % infill · **no supports** · **brim**
+PETG · 0.2 mm layer · 4 walls · ~30 % infill · **no supports** · **brim**
 (the design is "loose-fit, bolt-tight", so a brim + the FIT_CLEARANCE gaps
 absorb dimensional slop). All parts print **flat, largest face down**.
+
+**Full slicer profile — temps, retraction, tolerance settings, per-part notes:
+see [`../SLICING.md`](../SLICING.md).**
 
 ## Print order
 
