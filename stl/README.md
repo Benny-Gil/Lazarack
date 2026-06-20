@@ -20,6 +20,10 @@ absorb dimensional slop). All parts print **flat, largest face down**.
 **Full slicer profile — temps, retraction, tolerance settings, per-part notes:
 see [`../SLICING.md`](../SLICING.md).**
 
+**Filament:** ~**405 g** PETG for the core case (~40 % of a 1 kg spool),
+~**565 g** for the full set incl. SSD mezzanine + lid. Breakdown in
+[`../SLICING.md`](../SLICING.md#filament-estimate-petg-127-gcm³).
+
 ## Print order
 
 Print **bottom-up / structure-first**, and validate fit on a small cheap part

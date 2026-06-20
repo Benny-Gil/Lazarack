@@ -7,6 +7,34 @@ Field names are Cura-style; OrcaSlicer / Creality Print have the same settings.
 > Print everything **flat, largest face down** (the STLs are already oriented).
 > See [`stl/README.md`](stl/README.md) for the print order.
 
+## Filament estimate (PETG, ~1.27 g/cm³)
+
+Estimated from the exported STL volumes. It's a near-solid estimate (these parts
+are mostly walls), so it runs a touch **high** — at 30 % infill expect ~10 % less.
+**Slice for the exact number.**
+
+| Part | g each | qty | g total |
+|---|---:|---:|---:|
+| `baseplate_FL` / `FR` (front) | ~64 | 2 | ~128 |
+| `baseplate_RL` / `RR` (rear) | ~59 | 2 | ~117 |
+| `seam_splice` | ~2.2 | 6 | ~13 |
+| `faceplate_left` | ~34 | 1 | ~34 |
+| `faceplate_right` | ~26 | 1 | ~26 |
+| `rear_panel` | ~58 | 1 | ~58 |
+| `io_subplate` | ~16 | 1 | ~16 |
+| `m2_retainer` | ~1 | 1 | ~1 |
+| `m25_grid_insert` | ~0.2 | 5 | ~1 |
+| `board_edge_clip` | ~3 | 4 | ~12 |
+| **Core (required) subtotal** | | | **~405 g** |
+| `ssd_mezzanine` *(opt)* | ~24 | 1 | ~24 |
+| `lid_front` / `lid_rear` *(opt)* | ~68 | 2 | ~135 |
+| **Full set** | | | **~565 g** |
+
+- **Core case ≈ 405 g** (+~5 % brim ≈ **425 g**) — about **40 %** of a 1 kg spool.
+- **Full set (with SSD mezzanine + lid) ≈ 565 g** (≈ **55 %** of a spool).
+- Biggest items: the **4 baseplate quadrants (~245 g)** and the **lid (~135 g)** —
+  drop the optional lid/mezzanine and you're under half a spool.
+
 ## Material & temperature (PETG)
 
 | Setting | Value |
