@@ -1,10 +1,14 @@
 # Modular Laptop Motherboard Server Case — Design Spec
 
-A 3D-printed **1U** enclosure that mounts a **Dell Inspiron 15-5558/5559**
-motherboard into a **NiH "DIY 10-inch" cage-nut server rack**
-(Printables #1634385). All structural parts print on a **low-accuracy
-Creality Ender 3 V3 SE** (bed 220 x 220 x 250 mm) in **PETG**, flat, with
-no supports.
+A 3D-printed **1U** enclosure that mounts a salvaged **laptop motherboard**
+into a **NiH "DIY 10-inch" cage-nut server rack** (Printables #1634385). It is
+**parametric**: set your board's outline in the `★ YOUR BOARD` block of
+`parts/params.scad` and the body width, interior depth, the four baseplate
+quadrants, faceplate centering, and the grid all reflow — so it fits **any
+laptop board that fits a 10" rack** (the **Dell Inspiron 15-5558/5559** is the
+worked example, and `assert`s stop the build if a board is too big). All
+structural parts print on a **low-accuracy Creality Ender 3 V3 SE**
+(bed 220 x 220 x 250 mm) in **PETG**, flat, with no supports.
 
 The full parametric model lives in `parts/*.scad` (one module per printed
 part), shares one frozen contract in `parts/params.scad`, and is joined by
