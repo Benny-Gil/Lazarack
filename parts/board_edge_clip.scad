@@ -37,10 +37,14 @@ module board_edge_clip(reach = 14) {
             // the root keeps the cantilever stiff and support-free.
             translate([0, foot_d - EPS, board_top])
                 cube([foot_w, reach, fing_t]);
-            translate([0, foot_d - EPS, board_top - 3])
+            // FULL-height 45° gusset: its vertical face fuses to the foot and
+            // its top face meets the finger underside at board_top, so it
+            // actually braces the cantilever AND self-supports the finger in
+            // print (the old 3mm gusset stopped board_top-3 below the finger).
+            translate([0, foot_d - EPS, board_top])
                 rotate([0, 90, 0])
                     linear_extrude(foot_w)
-                        polygon([[0,0],[0,3],[3,3]]);   // triangular gusset
+                        polygon([[0,0],[board_top,0],[0,board_top]]);
         }
         // slotted M3 clearance hole through the foot, into the grid pilot below.
         // Slot runs in Y so the clip slides in/out before tightening.

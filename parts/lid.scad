@@ -57,9 +57,9 @@ use <../lib/joinery.scad>
 // Local placement helpers (derived from frozen params; NO param redefinition)
 // ---------------------------------------------------------------------
 
-// Lid plate sits ON TOP of the 86mm wall upstands:  Z LID_Z .. LID_Z+LID_T.
-LID_Z0            = LID_Z;                 // = 86  underside of lid plate
-LID_Z1            = LID_Z + LID_T;         // = 89  top face of lid plate
+// Lid plate sits ON TOP of the 40mm (1U) wall upstands:  Z LID_Z .. LID_Z+LID_T.
+LID_Z0            = LID_Z;                 // = 40  underside of lid plate
+LID_Z1            = LID_Z + LID_T;         // = 43  top face of lid plate
 LID_STEP_Z        = LID_T / 2;            // = 1.5 rabbet step (half the plate)
 
 // --- depth-seam lap (mirror baseplate lap, anchored to LID_FRONT_D) ---
@@ -76,16 +76,15 @@ LID_REAR_Y0       = LID_LAP_Y0;                  // = 93   rear tile starts at l
 LID_REAR_Y1       = DEPTH;                        // = 239  rear tile rear edge
 LID_REAR_SOLID_Y0 = LID_LAP_Y1;                  // = 118  rear-tile solid starts here
 
-// --- wall-top mounting (thumb-screw M3 clearance into wall-top inserts) ---
-// The integral upstands are WALL_T(3) wide at X 0..3 and 187..190.  Their
-// tops are at Z=UPSTAND_H(86)=LID_Z.  We drop M3 clearance holes along each
-// wall-top centerline (X=1.5 and X=188.5) into wall-top heat-set inserts.
-WALL_L_CX         = WALL_T / 2;                   // = 1.5   left  wall-top centerline X
-WALL_R_CX         = BODY_W - WALL_T / 2;          // = 188.5 right wall-top centerline X
-// Mounting-screw Y positions per tile (along each wall).  // MEASURE: the
-// matching wall-top inserts must be added to baseplate_front/_rear at these Y.
-LID_FRONT_FASTEN_Y = [ 18, 58, 100 ];            // 3 per wall on the front tile // MEASURE
-LID_REAR_FASTEN_Y  = [ 135, 175, 215 ];          // 3 per wall on the rear tile  // MEASURE
+// --- X-split + wall-top mounting -------------------------------------------
+// The lid is ALSO split in X at the center (4 bed-friendly tiles) so no tile
+// exceeds PRINT_MAX_XY (a full BODY_W=212 tile would not fit). Each tile
+// thumb-screws DOWN into the SHARED wall-top self-tap bosses the baseplate now
+// provides (params: LID_WALL_CX_L/R at LID_FASTEN_Y_FRONT/REAR) — so every
+// screw lands in real material, not a bare 3mm wall top.
+LID_CX            = BODY_W / 2;                   // = 106    X-split seam
+WALL_L_CX         = LID_WALL_CX_L;               // = 1.5    left  wall-top centerline X
+WALL_R_CX         = LID_WALL_CX_R;               // = 210.5  right wall-top centerline X
 
 // --- vent field (louvered slots through the plate, axis-of-cut +Y) ---
 // A central vent window on each tile, inset from the walls and the lap so
@@ -137,38 +136,38 @@ module lid_vent(x0, y0, w, depth, n, z_base) {
 //   thumb-screw clearance holes into the front wall-top inserts, central
 //   louvered vent field.
 // =====================================================================
-module lid_front() {
-    difference() {
+module lid_front(qx = 0) {
+    intersection() {
+        difference() {
 
-        union() {
-            // ---- 1. Main plate (full thickness)  Y 0..LID_FRONT_SOLID_D ----
-            translate([0, 0, LID_Z0])
-                cube([BODY_W, LID_FRONT_SOLID_D + EPS, LID_T]);
+            union() {
+                // ---- 1. Main plate (full thickness)  Y 0..LID_FRONT_SOLID_D ----
+                translate([0, 0, LID_Z0])
+                    cube([BODY_W, LID_FRONT_SOLID_D + EPS, LID_T]);
 
-            // ---- 2. MALE rabbet-lap LOWER tongue  Y 93..118 ----
-            // rabbet_lap_male models the lower step (Z 0..step_z) of width w,
-            // length lap, extending +Y from its local origin.  Place its base
-            // at the plate underside (LID_Z0) so the tongue is the LOWER half
-            // of the plate over the lap; the upper half is left open for the
-            // rear tile's ledge to overlap.
-            translate([0, LID_LAP_Y0, LID_Z0])
-                rabbet_lap_male(BODY_W, LAP_LEN, LID_STEP_Z, LID_T, EPS);
+                // ---- 2. MALE rabbet-lap LOWER tongue  (Y-seam to lid_rear) ----
+                translate([0, LID_LAP_Y0, LID_Z0])
+                    rabbet_lap_male(BODY_W, LAP_LEN, LID_STEP_Z, LID_T, EPS);
+            }
+
+            // ===== NEGATIVE FEATURES =====================================
+
+            // ---- A. Thumb-screw M3 clearance holes (into front wall-tops) ----
+            // axis +Z; both walls drilled, the out-of-band one is clipped away.
+            for (fy = LID_FASTEN_Y_FRONT) {
+                translate([WALL_L_CX, fy, LID_Z0 - EPS])
+                    cylinder(h = LID_T + 2*EPS, d = M3_CLEAR);
+                translate([WALL_R_CX, fy, LID_Z0 - EPS])
+                    cylinder(h = LID_T + 2*EPS, d = M3_CLEAR);
+            }
+
+            // ---- B. Central louvered vent field (over the solid plate) ----
+            lid_vent(VENT_X_INSET, VENT_FRONT_Y0, VENT_W, VENT_FRONT_D,
+                     VENT_SLATS_FRONT, LID_Z0 - EPS);
         }
-
-        // ===== NEGATIVE FEATURES =====================================
-
-        // ---- A. Thumb-screw M3 clearance holes (into front wall-tops) ----
-        // axis +Z, clean through the 3mm plate.  Two walls x N Y-positions.
-        for (fy = LID_FRONT_FASTEN_Y) {
-            translate([WALL_L_CX, fy, LID_Z0 - EPS])
-                cylinder(h = LID_T + 2*EPS, d = M3_CLEAR);
-            translate([WALL_R_CX, fy, LID_Z0 - EPS])
-                cylinder(h = LID_T + 2*EPS, d = M3_CLEAR);
-        }
-
-        // ---- B. Central louvered vent field (over the solid plate) ----
-        lid_vent(VENT_X_INSET, VENT_FRONT_Y0, VENT_W, VENT_FRONT_D,
-                 VENT_SLATS_FRONT, LID_Z0 - EPS);
+        // ---- clip to this X-half (qx=0 left, qx=1 right): 4 bed-fit tiles ----
+        translate([qx*LID_CX, -10, LID_Z0 - 10])
+            cube([LID_CX, DEPTH + 20, LID_T + 20]);
     }
 }
 
@@ -179,37 +178,37 @@ module lid_front() {
 //   solid plate Y 118..239, thumb-screw clearance holes into the rear
 //   wall-top inserts, central louvered vent field.
 // =====================================================================
-module lid_rear() {
-    difference() {
+module lid_rear(qx = 0) {
+    intersection() {
+        difference() {
 
-        union() {
-            // ---- 1. Main plate (full thickness)  Y 118..239 ----
-            translate([0, LID_REAR_SOLID_Y0 - EPS, LID_Z0])
-                cube([BODY_W, LID_REAR_Y1 - LID_REAR_SOLID_Y0 + EPS, LID_T]);
+            union() {
+                // ---- 1. Main plate (full thickness)  rear solid span ----
+                translate([0, LID_REAR_SOLID_Y0 - EPS, LID_Z0])
+                    cube([BODY_W, LID_REAR_Y1 - LID_REAR_SOLID_Y0 + EPS, LID_T]);
 
-            // ---- 2. FEMALE rabbet-lap UPPER ledge  Y 93..118 ----
-            // rabbet_lap_female returns the floor block (w x lap x floor_t)
-            // with the LOWER step pocketed out, leaving the UPPER ledge that
-            // overlaps the front tile's male tongue.  Place its base at the
-            // plate underside so the pocket (Z 0..step_z) opens DOWNWARD and
-            // the front tongue slides under the ledge.
-            translate([0, LID_LAP_Y0, LID_Z0])
-                rabbet_lap_female(BODY_W, LAP_LEN, LID_STEP_Z, LID_T, EPS);
+                // ---- 2. FEMALE rabbet-lap UPPER ledge  (Y-seam to lid_front) ----
+                translate([0, LID_LAP_Y0, LID_Z0])
+                    rabbet_lap_female(BODY_W, LAP_LEN, LID_STEP_Z, LID_T, EPS);
+            }
+
+            // ===== NEGATIVE FEATURES =====================================
+
+            // ---- A. Thumb-screw M3 clearance holes (into rear wall-tops) ----
+            for (fy = LID_FASTEN_Y_REAR) {
+                translate([WALL_L_CX, fy, LID_Z0 - EPS])
+                    cylinder(h = LID_T + 2*EPS, d = M3_CLEAR);
+                translate([WALL_R_CX, fy, LID_Z0 - EPS])
+                    cylinder(h = LID_T + 2*EPS, d = M3_CLEAR);
+            }
+
+            // ---- B. Central louvered vent field (over the solid plate) ----
+            lid_vent(VENT_X_INSET, VENT_REAR_Y0, VENT_W, VENT_REAR_D,
+                     VENT_SLATS_REAR, LID_Z0 - EPS);
         }
-
-        // ===== NEGATIVE FEATURES =====================================
-
-        // ---- A. Thumb-screw M3 clearance holes (into rear wall-tops) ----
-        for (fy = LID_REAR_FASTEN_Y) {
-            translate([WALL_L_CX, fy, LID_Z0 - EPS])
-                cylinder(h = LID_T + 2*EPS, d = M3_CLEAR);
-            translate([WALL_R_CX, fy, LID_Z0 - EPS])
-                cylinder(h = LID_T + 2*EPS, d = M3_CLEAR);
-        }
-
-        // ---- B. Central louvered vent field (over the solid plate) ----
-        lid_vent(VENT_X_INSET, VENT_REAR_Y0, VENT_W, VENT_REAR_D,
-                 VENT_SLATS_REAR, LID_Z0 - EPS);
+        // ---- clip to this X-half (qx=0 left, qx=1 right): 4 bed-fit tiles ----
+        translate([qx*LID_CX, -10, LID_Z0 - 10])
+            cube([LID_CX, DEPTH + 20, LID_T + 20]);
     }
 }
 
