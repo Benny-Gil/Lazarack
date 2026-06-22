@@ -1,5 +1,14 @@
 # dell-5558-rack-mount
 
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+&nbsp;![CAD: OpenSCAD](https://img.shields.io/badge/CAD-OpenSCAD-orange.svg)
+&nbsp;![Form factor: 1U · 10-inch](https://img.shields.io/badge/rack-1U%20·%2010%22%20mini-success.svg)
+&nbsp;![Print: PETG · support-free](https://img.shields.io/badge/print-PETG%20·%20support--free-green.svg)
+
+> Give a dead laptop's motherboard a second life as a **rack-mounted homelab node** —
+> a fully 3D-printed, bolt-together **1U case** for a **10-inch mini rack**, designed
+> from the ground up to forgive a cheap printer and a roughly-measured board.
+
 A **3D-printable, highly-modular 1U case** that turns a salvaged **Dell Inspiron
 15-5558 / 5559** laptop motherboard into a unit you can rack-mount in a **10-inch
 "mini" server rack**. Modeled parametrically in **OpenSCAD**; every part prints
@@ -12,6 +21,8 @@ bed) in PETG.
 > but the board-specific dimensions in `parts/params.scad` are still **estimates
 > tagged `// MEASURE`**. Caliper your board and update that one file before
 > printing for real. See [Measuring your board](#measuring-your-board).
+
+**Jump to:** [Design](#design-language--loose-fit-bolt-tight) · [Why](#why) · [How it goes together](#how-it-goes-together) · [Print it](#print-it) · [Build it](#build-it) · [Measuring your board](#measuring-your-board) · [License](#license)
 
 ---
 
@@ -62,9 +73,6 @@ forgiving of print error.
 
 ![Exploded view with part legend](docs/img/assembly_labeled.png)
 
-> The labeled legend image above is from an earlier revision and is **stale** —
-> treat the unlabeled `assembly_iso` / `assembly_exploded` renders as current.
-
 | # | Part | Role |
 |---|---|---|
 | 1–4 | `baseplate` → `baseplate_quad(qx,qy)` ×4 | Structural floor split into **four bed-friendly quadrants** with integral side walls; tied together by flat **`seam_splice`** bars bolted across the X and Y seams. Carries the 15 mm M3 self-tap pilot grid. |
@@ -96,6 +104,21 @@ print slop, no interlock to fight:
 
 Full mechanical spec, joinery, BOM, and print-plate layout: **[`CASE_DESIGN.md`](CASE_DESIGN.md)**.
 Slicer settings (Ender 3 V3 SE · PETG): **[`SLICING.md`](SLICING.md)**.
+
+---
+
+## Print it
+
+| | |
+|---|---|
+| **Filament** | ~**405 g** PETG (core) · ~**565 g** with the optional SSD mezzanine + lid — about **½ a 1 kg spool** |
+| **Time** | ~**30–40 h** (core) · ~**45–55 h** (full set) at the guide's PETG speeds |
+| **Settings** | PETG · 0.2 mm layer · 4 walls · ~30 % infill · **no supports** · **brim** |
+
+Ready-to-slice STLs and the recommended **print order** live in **[`stl/`](stl/)**;
+the full slicer profile (temps, retraction, tolerance settings) is in
+**[`SLICING.md`](SLICING.md)**. Re-export after editing `params.scad` with
+**`./export_stl.sh`**.
 
 ---
 
@@ -155,9 +178,16 @@ The donor board this was designed around — and the recognizable OpenSCAD
 reference model (`parts/reference_board.scad`, visual-only) built from it that
 appears in the renders above:
 
-| Donor board (photo) | Reference model |
-|---|---|
-| ![Donor motherboard](reference-images/photo-1.jpeg) | ![Reference board model](docs/img/reference_board.png) |
+<table>
+  <tr>
+    <th align="center">Donor board (photo)</th>
+    <th align="center">Reference model (OpenSCAD)</th>
+  </tr>
+  <tr>
+    <td align="center"><img src="reference-images/photo-1.jpeg" width="430" alt="Donor Dell 5558 motherboard"></td>
+    <td align="center"><img src="docs/img/reference_board.png" width="430" alt="OpenSCAD reference board model"></td>
+  </tr>
+</table>
 
 ---
 
