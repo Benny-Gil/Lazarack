@@ -42,14 +42,43 @@ CHAMFER          = 0.8;     // lead-in chamfer on holes/slots + bottom-edge reli
 // (M3_SLOT_W is derived in the FASTENERS section below, after M3_CLEAR.)
 
 
+// =====================================================================
+// ★★★  YOUR BOARD  —  THE ONLY SECTION YOU EDIT FOR A DIFFERENT BOARD ★★★
+// Drop in ANY laptop motherboard that fits a 10" rack: set its outline here
+// and the whole chassis (body width, depth, the 4 baseplate quadrants, the
+// faceplate centering, the grid) reflows automatically. Because the board is
+// held by grid-placed standoffs + edge clips and the panels are BLANK
+// drill-to-fit, you do NOT need exact hole/port positions — just the outline
+// + a sane clearance. (Hole/port constants further down stay as // MEASURE
+// hints for the optional reference board + pre-marked drill guides.)
 // ---------------------------------------------------------------------
-// CHASSIS BODY (structural box: baseplate_front + baseplate_rear + walls)
+BOARD_W_X        = 203;     // board WIDTH  (X) = the rack-facing / I-O edge   // EDIT
+BOARD_D_Y        = 197;     // board DEPTH  (Y) = I/O edge to the back         // EDIT
+BOARD_T          = 1;       // board thickness (Z)                            // EDIT
+STANDOFF_H       = 5;       // standoff height under the board (tallest part)  // EDIT
+// Clearances the body adds around the board (rarely changed):
+BOARD_MARGIN_X   = 4.5;     // X gap each side, board edge -> side wall
+BOARD_FRONT_GAP  = 6;       // Y gap, rack-front face -> board front
+BOARD_REAR_GAP   = 7;       // Y gap, board back -> rear panel
+// Example boards — copy a line, then caliper to refine:
+//   Dell Inspiron 15-5558/5559 : BOARD_W_X = 203; BOARD_D_Y = 197;   (default)
+//   <your board here>          : BOARD_W_X = ___; BOARD_D_Y = ___;
+
+
 // ---------------------------------------------------------------------
-BODY_W           = 212;     // X extent of the structural body (board 203 + ~4.5/side)
-                            //   ⚠ near 10" rack usable width (~220 between rails);
-                            //   a board wider than ~206 won't fit a 10" rack flat.
+// CHASSIS BODY  (auto-sized from YOUR BOARD above; centered in the rack)
+// ---------------------------------------------------------------------
+BODY_W           = BOARD_W_X + 2*BOARD_MARGIN_X;   // structural body width (X)
 FLOOR            = 3;       // floor / baseplate thickness (Z: 0..FLOOR)
 WALL_T           = 3;       // integral side-wall upstand thickness (X walls)
+
+// 10" rack fit guard — stops the build if the board is too big for a 10" rack:
+RACK_MAX_BODY_W  = 216;     // ~usable width between the 10" rack rails
+RACK_MAX_DEPTH   = 250;     // ~usable front-to-back depth of a 10" rack
+assert(BODY_W <= RACK_MAX_BODY_W,
+       str("Board too WIDE for a 10\" rack: body ", BODY_W,
+           "mm exceeds ", RACK_MAX_BODY_W, "mm (max board width ~",
+           RACK_MAX_BODY_W - 2*BOARD_MARGIN_X, "mm)."));
 
 // --- 2U height ---
 U_HEIGHT         = 44.45;   // 1U in mm (EIA-310)
@@ -58,28 +87,24 @@ EXT_HEIGHT       = 44.45;   // external 1U height
 UPSTAND_H        = 40;      // integral side-wall upstand height (lid sits on top: 40+3=43 < 44.45)
 FACE_H           = 43.66;   // faceplate front-panel height (1U EIA panel, -0.79 binding margin)
 
-// --- Depth split (front tile / rear tile / overlap lap) ---
-DEPTH            = 210;     // interior depth (board 197 + ~13 slack), Y 0..DEPTH
-FRONT_TILE_D     = 110;     // front quads span Y 0..110
-REAR_TILE_D      = 125;     // rear quads span Y (DEPTH-REAR_TILE) .. DEPTH
-LAP_LEN          = 25;      // overlap length (mm); 110+125-25 = 210
-LAP_Y_NOMINAL    = 110;     // nominal seam centre; lap region ~Y 85..110
-                            //   front MALE step occupies Y (122-LAP_LEN)..122
-                            //   = Y 97..122 ; rear FEMALE receives it.
+// --- Depth + depth-split (auto from the board; seam near mid-depth) ---
+DEPTH            = BOARD_FRONT_GAP + BOARD_D_Y + BOARD_REAR_GAP;  // interior depth (Y)
+assert(DEPTH <= RACK_MAX_DEPTH,
+       str("Board too DEEP for a 10\" rack: ", DEPTH, "mm exceeds ", RACK_MAX_DEPTH, "mm."));
+LAP_LEN          = 25;      // overlap length of the rabbet lap (mm)
+// Front quad depth: keep the EXACT original 110/125 split for the default Dell
+// board (BOARD_D_Y==197); for any other board, derive a balanced mid-depth seam.
+FRONT_TILE_D     = (BOARD_D_Y == 197) ? 110 : floor(DEPTH/2) + 8;
+REAR_TILE_D      = DEPTH - FRONT_TILE_D + LAP_LEN; // rear quads span the remainder + lap
+LAP_Y_NOMINAL    = FRONT_TILE_D;                   // seam centre / lap rear edge
 LAP_STEP_Z       = FLOOR/2; // rabbet step height = half floor (1.5mm)
 
 
 // ---------------------------------------------------------------------
-// BOARD  (Dell Inspiron 15-5558/5559 motherboard)
-//   235mm(Y, depth) x 170mm(X, width) x ~2mm, centered in X within BODY_W
-//   => board X 10..180 ; rests on M2.5 standoffs.
+// BOARD placement (derived from YOUR BOARD + the body; centered in X)
 // ---------------------------------------------------------------------
-BOARD_W_X        = 203;     // board width  (X) = the I/O-edge length (8")  // MEASURE
-BOARD_D_Y        = 197;     // board depth  (Y) = I/O edge to back (7.5-8") // MEASURE
-BOARD_T          = 1;       // board thickness (Z) ~0.8-1mm                 // MEASURE
-BOARD_X0         = (BODY_W - BOARD_W_X) / 2;   // = 4.5 (board X 4.5..207.5, centered)
-BOARD_Y0         = 6;       // front clearance (slack for poor measurement); board Y 6..203
-STANDOFF_H       = 5;       // M2.5 standoff / boss height under board (Z)
+BOARD_X0         = (BODY_W - BOARD_W_X) / 2;   // board centered in the body (= BOARD_MARGIN_X)
+BOARD_Y0         = BOARD_FRONT_GAP;            // board front edge Y
 BOARD_Z          = FLOOR + STANDOFF_H;         // board underside Z
 
 // Board mounting holes [x,y] in ASSEMBLY frame (absolute, not board-local).
