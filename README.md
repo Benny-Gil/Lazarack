@@ -78,12 +78,12 @@ forgiving of print error.
 |---|---|---|
 | 1–4 | `baseplate` → `baseplate_quad(qx,qy)` ×4 | Structural floor split into **four bed-friendly quadrants** with integral side walls; tied together by flat **`seam_splice`** bars bolted across the X and Y seams. Carries the 15 mm M3 self-tap pilot grid. |
 | – | `seam_splice()` | Flat bridging bar that bolts across a quadrant seam into the grid (the "bolt-tight" half of the seam). |
-| 5–6 | `faceplate_left` / `faceplate_right` | The 254 mm rack faceplate, split at the centerline (X=106) so each **M5 rack column stays whole on one tile**. |
+| 5–6 | `faceplate_left` / `faceplate_right` | The 254 mm rack faceplate, split at the centerline (X=106) so each **M5 rack column stays whole on one tile**. Its bottom flange **rests on the front lip and bolts straight down** into shared self-tap pilots. |
 | 7 | `io_subplate` | **Blank** swappable front insert with the 130 × 32 I/O window — you drill HDMI / USB-A / exhaust to your board after a fit check. |
 | 8 | `m2_retainer` | Gusseted M2.5 post that **supplies the missing M.2 standoff**. |
-| 9 | `rear_panel` | **Blank** rear panel — drill USB-C power-in / SD / audio to your board later. |
+| 9 | `rear_panel` | **Blank** rear panel — drill USB-C power-in / SD / audio later. Flange **rests on the rear lip and bolts into the shared pilots**. |
 | 10 | `ssd_mezzanine` *(opt)* | 2.5" SATA drive carrier on stilts **above** the board, bolted to the grid. |
-| 11 | `lid` → `lid_front()` / `lid_rear()` *(opt)* | Vented 1U top in two tiles. |
+| 11–14 | `lid` → `lid_front(qx)` / `lid_rear(qx)` *(opt)* | Vented 1U top in **four bed-friendly tiles** (split in X *and* Y); each thumb-screws down into **wall-top self-tap bosses** on the baseplate. |
 | – | `m25_grid_insert()` | Grid-dropped M2.5 board standoff (placed where the board holes land, not fixed). |
 | – | `board_edge_clip()` | Finger that traps the board edge — board retention without a critical hole. |
 
@@ -184,9 +184,9 @@ message if the board is too big — practical limits are about **≤ 207 mm wide
 (to clear the rack rails) and **≤ ~237 mm deep**. Boards larger than that need a
 deeper/wider rack, not this case.
 
-> Heads-up: a board near the 207 mm-wide max pushes the full-width parts
-> (`rear_panel`, `lid`) toward the 220 mm bed edge — print those with a brim, or
-> split them like the baseplate.
+> Heads-up: the baseplate and lid are split into bed-friendly tiles, but the
+> one-piece **`rear_panel`** is full body-width — near the 207 mm-wide max it
+> pushes the 220 mm bed edge, so print it with a brim (or split it like the rest).
 
 ---
 

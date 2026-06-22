@@ -23,9 +23,9 @@ use <../lib/joinery.scad>
 
 CX      = BODY_W / 2;          // 106  X-seam (also the faceplate centerline)
 SY      = FRONT_TILE_D;        // 110  Y-seam (front/rear cut)
-LIP_T   = 6;                   // panel-lip depth in Y (faceplate/rear flange beds here)
-LIP_H   = 6;                   // panel-lip height above the floor (Z)
 CH      = CHAMFER;             // bottom-edge relief for elephant-foot
+// (LIP_T, LIP_H, LIP_TOP_Z + the shared pilot columns now live in params.scad,
+//  so the faceplate/rear-panel flanges can never drift from these pilots.)
 
 // ---- the complete (un-split) baseplate -------------------------------
 module _baseplate_full() {
@@ -36,11 +36,20 @@ module _baseplate_full() {
             // integral L / R side-wall upstands (1U)
             cube([WALL_T, DEPTH, UPSTAND_H]);
             translate([BODY_W - WALL_T, 0, 0]) cube([WALL_T, DEPTH, UPSTAND_H]);
-            // front + rear panel lips (raised bars the panel flanges bolt to)
+            // front + rear panel lips (raised bars the panel flanges bolt onto)
             translate([WALL_T - EPS, 0, FLOOR - EPS])
                 cube([BODY_W - 2*WALL_T + 2*EPS, LIP_T, LIP_H + EPS]);
             translate([WALL_T - EPS, DEPTH - LIP_T, FLOOR - EPS])
                 cube([BODY_W - 2*WALL_T + 2*EPS, LIP_T, LIP_H + EPS]);
+            // wall-top bosses: a local INWARD thickening of each side-wall top
+            // at every lid fastener Y, so the lid's M3 thumb-screws have real
+            // material to self-tap into (a bare 3mm wall top cannot hold M3).
+            for (y = concat(LID_FASTEN_Y_FRONT, LID_FASTEN_Y_REAR)) {
+                translate([0, y - LID_BOSS_Y/2, UPSTAND_H - LID_WALL_PILOT_DEPTH])
+                    cube([LID_BOSS_W, LID_BOSS_Y, LID_WALL_PILOT_DEPTH]);
+                translate([BODY_W - LID_BOSS_W, y - LID_BOSS_Y/2, UPSTAND_H - LID_WALL_PILOT_DEPTH])
+                    cube([LID_BOSS_W, LID_BOSS_Y, LID_WALL_PILOT_DEPTH]);
+            }
         }
         // --- 15mm M3 self-tap pilot grid (blind holes in the flat floor) ---
         for (cx = [0 : GRID_COLS-1], ry = [0 : GRID_ROWS-1]) {
@@ -50,10 +59,17 @@ module _baseplate_full() {
                 && gy > LIP_T + 2 && gy < DEPTH - LIP_T - 2)
                 translate([gx, gy, FLOOR]) dowel_hole(GRID_PILOT_D, GRID_PILOT_DEPTH, EPS);
         }
-        // --- panel flange M3 self-tap pilots in the lips ---
-        for (x = [30, CX, BODY_W - 30]) {
-            translate([x, LIP_T/2, FLOOR + LIP_H]) dowel_hole(GRID_PILOT_D, LIP_H, EPS);
-            translate([x, DEPTH - LIP_T/2, FLOOR + LIP_H]) dowel_hole(GRID_PILOT_D, LIP_H, EPS);
+        // --- panel-flange M3 self-tap pilots in the lips (front + rear) ---
+        // SHARED columns: faceplate + rear_panel flanges bolt straight down
+        // into these exact (X,Y) points (params: PANEL_PILOT_X/FRONT/REAR).
+        for (x = PANEL_PILOT_X) {
+            translate([x, FRONT_PILOT_Y, LIP_TOP_Z]) dowel_hole(GRID_PILOT_D, LIP_H, EPS);
+            translate([x, REAR_PILOT_Y,  LIP_TOP_Z]) dowel_hole(GRID_PILOT_D, LIP_H, EPS);
+        }
+        // --- lid wall-top self-tap pilots (bored down from each wall top) ---
+        for (y = concat(LID_FASTEN_Y_FRONT, LID_FASTEN_Y_REAR)) {
+            translate([LID_WALL_CX_L, y, UPSTAND_H]) dowel_hole(GRID_PILOT_D, LID_WALL_PILOT_DEPTH, EPS);
+            translate([LID_WALL_CX_R, y, UPSTAND_H]) dowel_hole(GRID_PILOT_D, LID_WALL_PILOT_DEPTH, EPS);
         }
         // --- bottom-edge chamfer (elephant-foot relief) around the floor ---
         _bottom_chamfer();

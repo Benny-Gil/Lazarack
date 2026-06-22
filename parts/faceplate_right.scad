@@ -61,11 +61,11 @@ LAP_BOLT_Z      = [ FR_H * 0.34, FR_H * 0.66 ];  // 2 bolt heights (Z), match le
 LAP_BOLT_X      = FR_X0 + LAP_LEN/2;             // bolt X (mid-overlap), match left
 LAP_SLOT_TRAVEL = 3;                  // X-elongation of the slot (in/out slop)
 
-// ---- bottom flange (tongue) into baseplate_front lip ----
-FLANGE_H     = 6;                     // tongue height in Z (beds into lip)  // MEASURE
-FLANGE_T     = 3;                     // tongue thickness in Y               // MEASURE
-FLANGE_BOLTS_X = [ FR_X0 + 25, FR_X1 - 25 ]; // 2x M3 bolt-down X positions // MEASURE
-FLANGE_BOLT_Z  = FLANGE_H/2;          // bolt height within the flange
+// ---- bottom flange: rests ON TOP of the front lip, bolts straight DOWN ----
+// (mirror faceplate_left: replaces the old floor-tongue that collided with the
+//  solid lip and the HORIZONTAL bolts that hit no pilot)
+FLANGE_H     = 6;                     // flange height above the lip top (Z)
+FR_FLANGE_X1 = min(FR_X1, BODY_W - WALL_T); // clip flange to where the lip exists
 
 // ---- io_subplate window: RIGHT part of the full window ----
 // Full window in assembly frame: X IO_WIN_X0 .. IO_WIN_X0+IO_SUB_W,
@@ -118,9 +118,9 @@ module faceplate_right() {
             translate([FR_X0, 0, 0])
                 cube([SEAM_RAIL_W, SEAM_RAIL_T, FR_H]);
 
-            // ---- bottom flange / tongue into baseplate_front lip ----
-            translate([FR_X0, 0 - EPS, 0])
-                tongue(FR_W, FLANGE_H, FLANGE_T, EPS);
+            // ---- bottom flange (rests ON TOP of the baseplate front lip) --
+            translate([FR_X0, -EPS, LIP_TOP_Z])
+                cube([FR_FLANGE_X1 - FR_X0, LIP_T + EPS, FLANGE_H]);
 
             // ---- io_subplate mount bosses (right-side pair) ---------
             for (p = IO_SUB_M3) {
@@ -161,17 +161,17 @@ module faceplate_right() {
             translate([LAP_BOLT_X, -FR_T, bz])
                 lap_bolt_slot(LAP_SLOT_TRAVEL, FR_T);
 
-        // ---- bottom-flange M3 bolt-down clearance holes (chamfered) -
-        for (xc = FLANGE_BOLTS_X) {
-            translate([xc, -EPS, FLANGE_BOLT_Z])
-                rotate([-90, 0, 0])  // axis +Y
-                    cylinder(h = FLANGE_T + 2*EPS + 1, d = M3_CLEAR);
-            // CHAMFER lead-in at the +Y entry face
-            translate([xc, FLANGE_T + 1, FLANGE_BOLT_Z])
-                rotate([90, 0, 0])
+        // ---- bottom-flange M3 bolt-down holes (VERTICAL, chamfered) -
+        // Drop straight DOWN into the front-lip pilots THIS tile owns
+        // (the X>seam columns of PANEL_PILOT_X) — matches faceplate_left.
+        for (fx = PANEL_PILOT_X)
+            if (fx > FACE_SPLIT_X + 2 && fx < FR_FLANGE_X1) {
+                translate([fx, FRONT_PILOT_Y, LIP_TOP_Z - EPS])
+                    cylinder(h = FLANGE_H + 2*EPS, d = M3_CLEAR);
+                translate([fx, FRONT_PILOT_Y, LIP_TOP_Z + FLANGE_H - CHAMFER])
                     cylinder(h = CHAMFER + EPS,
                              d1 = M3_CLEAR, d2 = M3_CLEAR + 2*CHAMFER);
-        }
+            }
 
         // ---- io_subplate window (RIGHT part) ------------------------
         // This tile owns X >= FR_X0. Clip both cuts to X >= FR_X0.

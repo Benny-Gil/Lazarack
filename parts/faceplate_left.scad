@@ -41,10 +41,13 @@ TILE_X0         = FACE_X0;              // left outer edge
 TILE_X1         = FACE_SPLIT_X;         // center seam edge
 TILE_W          = TILE_X1 - TILE_X0;    // = FACE_TILE_W
 
-// Bottom mounting flange (tongue bedding onto baseplate_front front lip).
-FLANGE_H        = 8;                    // MEASURE flange height up the back (Z)
-FLANGE_T        = WALL_T;               // = 3  flange thickness into body (+Y)
-FLANGE_M3_INSET = 14;                   // MEASURE M3 mount inset from tile ends
+// Bottom mounting flange: a shelf that rests ON TOP of the baseplate front
+// lip (Z LIP_TOP_Z..+FLANGE_H) and bolts straight DOWN into the SHARED
+// front-lip self-tap pilots — so it can never collide with the solid lip and
+// the bolt always lands in a real pilot. (Replaces the old floor-standing
+// tongue, which grew +Y straight into the solid lip and bolted into nothing.)
+FLANGE_H        = 6;                    // flange height above the lip top (Z)
+FLANGE_X0       = max(TILE_X0, WALL_T); // clip flange to where the lip exists (X>=WALL_T)
 
 // ---- center-seam BOLTED-OVERLAP geometry (seam plane = X = FACE_SPLIT_X) --
 // The LEFT tile owns the lap TONGUE; the RIGHT tile owns the matching rebate.
@@ -115,9 +118,11 @@ module faceplate_left() {
             translate([TILE_X0, -FACE_T, 0])
                 cube([TILE_W, FACE_T, FACE_H]);
 
-            // -------- bottom mounting flange (tongue onto baseplate lip) -
-            translate([TILE_X0, 0, 0])
-                tongue(TILE_W, FLANGE_H, FLANGE_T);     // w(X) x t(Y) x h(Z)
+            // -------- bottom mounting flange (rests ON TOP of the lip) ---
+            // A shelf over the front lip (Y 0..LIP_T) at the lip top; the
+            // vertical M3 holes (below) drop through it into the lip pilots.
+            translate([FLANGE_X0, -EPS, LIP_TOP_Z])
+                cube([TILE_X1 - FLANGE_X0, LIP_T + EPS, FLANGE_H]);
 
             // -------- center seam RAIL (meat behind the thin slab) ------
             // Solid rail along the inner edge, just left of the seam, fused to
@@ -167,18 +172,18 @@ module faceplate_left() {
             translate([LAP_BOLT_X, -LAP_T, bz])
                 lap_bolt_slot(LAP_SLOT_TRAVEL, LAP_T);
 
-        // -------- bottom-flange M3 clearance holes (chamfered) ----------
-        for (fx = [TILE_X0 + FLANGE_M3_INSET,
-                   TILE_X1 - FLANGE_M3_INSET,
-                   (TILE_X0 + TILE_X1)/2]) {
-            // through clearance hole (axis +Z)
-            translate([fx, FLANGE_T/2, -EPS])
-                cylinder(h = FLANGE_H + 2*EPS, d = M3_CLEAR);
-            // CHAMFER lead-in at the bottom (Z=0) entry face
-            translate([fx, FLANGE_T/2, -EPS])
-                cylinder(h = CHAMFER + EPS,
-                         d1 = M3_CLEAR + 2*CHAMFER, d2 = M3_CLEAR);
-        }
+        // -------- bottom-flange M3 bolt-down holes (vertical, chamfered) -
+        // Drop straight DOWN through the flange shelf into the front-lip
+        // self-tap pilots THIS tile owns (the X<seam columns of PANEL_PILOT_X).
+        for (fx = PANEL_PILOT_X)
+            if (fx > FLANGE_X0 && fx < FACE_SPLIT_X - 2) {
+                translate([fx, FRONT_PILOT_Y, LIP_TOP_Z - EPS])
+                    cylinder(h = FLANGE_H + 2*EPS, d = M3_CLEAR);
+                // CHAMFER lead-in at the top (entry) face
+                translate([fx, FRONT_PILOT_Y, LIP_TOP_Z + FLANGE_H - CHAMFER])
+                    cylinder(h = CHAMFER + EPS,
+                             d1 = M3_CLEAR, d2 = M3_CLEAR + 2*CHAMFER);
+            }
     }
 }
 
