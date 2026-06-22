@@ -35,6 +35,22 @@ are mostly walls), so it runs a touch **high** — at 30 % infill expect ~10 % l
 - Biggest items: the **4 baseplate quadrants (~245 g)** and the **lid (~135 g)** —
   drop the optional lid/mezzanine and you're under half a spool.
 
+### Print time (rough)
+
+At the moderate speeds below (~45 mm/s outer walls), wall-heavy PETG parts run
+~**10–14 g/hr** effective. **Slice for the exact number.**
+
+| | Filament | Approx. time |
+|---|---:|---:|
+| **Core case** (required) | ~405 g | **~30–40 h** |
+| **Full set** (+ mezzanine + lid) | ~565 g | **~45–55 h** |
+
+- ≈ **2–2.5 days** of continuous printing for everything; ~1.5 days for the core.
+- The **4 baseplate quadrants dominate** (~5–7 h each ≈ 24 h) — their tall walls
+  print slowly. The small parts (splices/clips/inserts/io) are a few hours batched.
+- These speeds are conservative; the V3 SE handles 80–100 mm/s, which cuts the
+  total **~30–40 %** (at some quality cost on PETG).
+
 ## Material & temperature (PETG)
 
 | Setting | Value |
