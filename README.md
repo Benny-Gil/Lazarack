@@ -1,19 +1,20 @@
-# dell-5558-rack-mount
+# lazarack
+
+*Lazarus + rack* — **raise a dead laptop motherboard from the e-waste pile into a rack-mounted homelab server.**
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 &nbsp;![CAD: OpenSCAD](https://img.shields.io/badge/CAD-OpenSCAD-orange.svg)
 &nbsp;![Form factor: 1U · 10-inch](https://img.shields.io/badge/rack-1U%20·%2010%22%20mini-success.svg)
 &nbsp;![Print: PETG · support-free](https://img.shields.io/badge/print-PETG%20·%20support--free-green.svg)
+&nbsp;![Boards: parametric](https://img.shields.io/badge/board-parametric-blueviolet.svg)
 
-> Give a dead laptop's motherboard a second life as a **rack-mounted homelab node** —
-> a fully 3D-printed, bolt-together **1U case** for a **10-inch mini rack**, designed
-> from the ground up to forgive a cheap printer and a roughly-measured board.
-
-A **3D-printable, highly-modular 1U case** that turns a salvaged **Dell Inspiron
-15-5558 / 5559** laptop motherboard into a unit you can rack-mount in a **10-inch
-"mini" server rack**. Modeled parametrically in **OpenSCAD**; every part prints
-flat with no supports on a low-accuracy **Creality Ender 3 V3 SE** (220 × 220 mm
-bed) in PETG.
+A **3D-printable, highly-modular 1U case** that turns a salvaged laptop
+motherboard into a unit you can rack-mount in a **10-inch "mini" server rack**.
+It's **parametric** — set your board's outline in one block and the whole
+chassis reflows, so it fits **any laptop board that fits a 10" rack** (the
+**Dell Inspiron 15-5558 / 5559** is the worked example here). Modeled in
+**OpenSCAD**; every part prints flat with no supports on a low-accuracy
+**Creality Ender 3 V3 SE** (220 × 220 mm bed) in PETG.
 
 ![Assembled, isometric](docs/img/assembly_iso.png)
 
@@ -22,7 +23,7 @@ bed) in PETG.
 > tagged `// MEASURE`**. Caliper your board and update that one file before
 > printing for real. See [Measuring your board](#measuring-your-board).
 
-**Jump to:** [Design](#design-language--loose-fit-bolt-tight) · [Why](#why) · [How it goes together](#how-it-goes-together) · [Print it](#print-it) · [Build it](#build-it) · [Measuring your board](#measuring-your-board) · [License](#license)
+**Jump to:** [Design](#design-language--loose-fit-bolt-tight) · [Why](#why) · [How it goes together](#how-it-goes-together) · [Print it](#print-it) · [Build it](#build-it) · [Use it for another board](#use-it-for-a-different-board) · [Measuring your board](#measuring-your-board) · [License](#license)
 
 ---
 
@@ -158,9 +159,40 @@ reference-images/         photos of the donor board
 
 ---
 
+## Use it for a different board
+
+The Dell 15-5558/5559 is just the **worked example** — this case fits **any
+laptop motherboard that fits a 10" rack**. The whole chassis auto-sizes from one
+block at the top of `parts/params.scad`:
+
+```scad
+// ★★★  YOUR BOARD  —  THE ONLY SECTION YOU EDIT FOR A DIFFERENT BOARD  ★★★
+BOARD_W_X = 203;   // board WIDTH  (X) = the rack-facing / I-O edge   // EDIT
+BOARD_D_Y = 197;   // board DEPTH  (Y) = I/O edge to the back         // EDIT
+BOARD_T   = 1;     // board thickness                                // EDIT
+STANDOFF_H = 5;    // standoff height under the board (tallest part)  // EDIT
+```
+
+Change those four numbers and the **body width, interior depth, the four
+baseplate quadrants, the faceplate centering, and the M3 grid all reflow
+automatically** — no other file to touch. You don't need exact hole or port
+positions: the board rides on **grid-placed standoffs + edge clips** (any hole
+pattern) and the **blank** front/rear panels are **drilled to fit**.
+
+**It must fit a 10" rack.** Built-in `assert`s stop the build with a clear
+message if the board is too big — practical limits are about **≤ 207 mm wide**
+(to clear the rack rails) and **≤ ~237 mm deep**. Boards larger than that need a
+deeper/wider rack, not this case.
+
+> Heads-up: a board near the 207 mm-wide max pushes the full-width parts
+> (`rear_panel`, `lid`) toward the 220 mm bed edge — print those with a brim, or
+> split them like the baseplate.
+
+---
+
 ## Measuring your board
 
-The model renders today on sane defaults, but anything tagged `// MEASURE` in
+Once you've set the outline above, anything tagged `// MEASURE` in
 `parts/params.scad` should be calipered and corrected before a real print. Note
 that the loose-fit design tolerates small errors — and the **blank** io_subplate
 and rear_panel are **drilled to fit after assembly**, so port positions are the
