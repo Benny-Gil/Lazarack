@@ -84,9 +84,9 @@ at `BOARD_Z` = 8 mm (`FLOOR` 3 + `STANDOFF_H` 5).
 | 6 | `faceplate_right.scad` -> `faceplate_right()` | Right half; whole **right M5 column** (`M5_X_RIGHT`); right half of the io-window. |
 | 7 | `io_subplate.scad` -> `io_subplate()` | **Blank** swappable front insert (`IO_SUB_W` 130 x `IO_SUB_H` 32 x `IO_SUB_T` 3) filling the faceplate window. Ports (HDMI / USB-A / exhaust) are **drilled by the user** after a fit check. |
 | 8 | `m2_retainer.scad` -> `m2_retainer()` | Gusseted M2.5 post supplying the **missing M.2 standoff**; foot bolts to the grid, top takes an M2.5 insert. |
-| 9 | `rear_panel.scad` -> `rear_panel()` | **Blank** rear panel (`REAR_W` 212 x `REAR_H` 40 x `REAR_T` 4). USB-C / SD / audio cutouts **drilled later**. |
+| 9 | `rear_panel.scad` -> `rear_panel()` | **Blank** rear panel (`REAR_W` 212 x `REAR_H` 40 x `REAR_T` 4). Flange **rests on the rear lip and bolts down into the shared pilots**; USB-C / SD / audio cutouts **drilled later**. |
 | 10 | `ssd_mezzanine.scad` -> `ssd_mezzanine()` *(opt)* | 2.5" SATA drive carrier on stilts **above** the board, bolted to the grid (keeps the floor clear). |
-| 11 | `lid.scad` -> `lid_front()`, `lid_rear()` *(opt)* | Vented **1U** top in two tiles. |
+| 11–14 | `lid.scad` -> `lid_front(qx)`, `lid_rear(qx)` *(opt)* | Vented **1U** top in **four bed-friendly tiles** (split in X *and* Y); each thumb-screws down into **wall-top self-tap bosses** the baseplate provides. |
 | – | `m25_grid_insert.scad` -> `m25_grid_insert(h)` | Grid-dropped M2.5 board standoff — placed wherever the board's holes land on the pilot grid. The tolerance-first replacement for fixed standoffs. |
 | – | `board_edge_clip.scad` -> `board_edge_clip(reach)` | Finger that reaches over and traps the board edge — board retention that needs no precise hole. |
 
@@ -181,7 +181,7 @@ interlocks, register the seams.
 | `rear_panel` | outer face down | Brim; ships blank — drill ports after fit |
 | `m2_retainer` | foot down | Gussets print in-plane; M2.5 bore opens up |
 | `ssd_mezzanine` *(opt)* | floor down | Stilts print up |
-| `lid_front` / `lid_rear` *(opt)* | flat | Vent slots in-plane |
+| `lid_front(qx)` / `lid_rear(qx)` *(opt)* | flat | 4 tiles (X+Y split); vent slots in-plane |
 
 ---
 
@@ -199,7 +199,7 @@ interlocks, register the seams.
 | m25_grid_insert (board standoffs) | ~5 (one per board hole) |
 | board_edge_clip | ~4 |
 | ssd_mezzanine *(optional)* | 1 |
-| lid_front, lid_rear *(optional)* | 1 each |
+| lid_front(qx), lid_rear(qx) *(optional)* | 2 each (qx = 0 left / 1 right) = 4 tiles |
 
 ### Fasteners & hardware
 | Item | Qty (approx) | Use |
