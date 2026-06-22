@@ -75,8 +75,11 @@ module main_assembly() {
     // seam splice bars tie the quadrants across BOTH seams (bolt into the grid).
     // Mostly hidden under the board here — see docs/img/baseplate_assembly.png.
     if (EXPLODE == 0) {
-        for (y = [40, 150]) color("#cfcfcf") translate([90, y, FLOOR]) seam_splice();      // X-seam
-        for (x = [50, 170]) color("#cfcfcf") translate([x, 90, FLOOR]) rotate([0,0,90]) seam_splice(); // Y-seam
+        // X-seam bars: y snapped so each bolt hole lands on a grid pilot row
+        // (hole-center = y+8 -> 42.5 / 162.5); previously landed on bare floor.
+        for (y = [34.5, 154.5]) color("#cfcfcf") translate([90, y, FLOOR]) seam_splice();      // X-seam
+        // Y-seam bars: x snapped so each hole lands on a grid pilot column (42.5/162.5).
+        for (x = [50.5, 170.5]) color("#cfcfcf") translate([x, 90, FLOOR]) rotate([0,0,90]) seam_splice(); // Y-seam
     }
 
     // --- Faceplate (two tiles), in front of the body. Explodes -Y. ---
@@ -115,13 +118,13 @@ module main_assembly() {
     // --- Optional vented 2U lid (two tiles) on the wall-tops. Explodes +Z;
     //     the two tiles also separate along Y like the baseplate lap. ---
     if (SHOW_LID) {
-        color(C_LID_FRONT)
-            translate([0, -EXPLODE, 3 * EXPLODE])
-                lid_front();
-
-        color(C_LID_REAR)
-            translate([0, EXPLODE, 3 * EXPLODE])
-                lid_rear();
+        // 4 bed-friendly lid tiles: split in X at center (like the baseplate)
+        // so no tile exceeds the bed; each half thumb-screws to its own wall.
+        for (qx = [0, 1]) {
+            ex = (qx == 0 ? -EXPLODE : EXPLODE);
+            color(C_LID_FRONT) translate([ex, -EXPLODE, 3 * EXPLODE]) lid_front(qx);
+            color(C_LID_REAR)  translate([ex,  EXPLODE, 3 * EXPLODE]) lid_rear(qx);
+        }
     }
 
     // --- The motherboard (visual reference; sits on the standoffs) ---

@@ -196,6 +196,35 @@ GRID_CLEAR       = 8;       // min XY clearance grid pilot must keep from a boss
 
 
 // ---------------------------------------------------------------------
+// PANEL-LIP JOINERY  (shared by baseplate + faceplate + rear_panel so the
+// flange bolts, lip pilots and grooves can NEVER drift apart between mates)
+// ---------------------------------------------------------------------
+LIP_T              = 6;     // panel-lip depth in Y (flange/tongue beds here)
+LIP_H              = 6;     // panel-lip height above the floor (Z)
+LIP_TOP_Z          = FLOOR + LIP_H;                 // = 9   lip top Z
+LIP_GROOVE_DEPTH   = 3;                              // upward groove into the lip top
+LIP_GROOVE_FLOOR_Z = LIP_TOP_Z - LIP_GROOVE_DEPTH;  // = 6   groove floor Z
+// self-tap pilot columns the lips provide and the panels bolt down into:
+PANEL_PILOT_X      = [30, BODY_CX, BODY_W - 30];    // = [30,106,182]
+FRONT_PILOT_Y      = LIP_T/2;                        // = 3    front-lip pilot Y
+REAR_PILOT_Y       = DEPTH - LIP_T/2;               // = 207  rear-lip pilot Y
+
+// ---------------------------------------------------------------------
+// LID WALL-TOP FASTENERS  (shared by baseplate wall-top bosses + lid holes,
+// so the lid's M3 screws always land on a real self-tap pilot in the wall).
+//   On each side-wall top centerline; front Ys live on the front quads,
+//   rear Ys on the rear quads (kept clear of the Y-seam at FRONT_TILE_D).
+// ---------------------------------------------------------------------
+LID_WALL_CX_L      = WALL_T/2;                       // = 1.5    left  wall-top centerline X
+LID_WALL_CX_R      = BODY_W - WALL_T/2;             // = 210.5  right wall-top centerline X
+LID_FASTEN_Y_FRONT = [20, FRONT_TILE_D/2, FRONT_TILE_D - 10]; // front-quad screws (Y<FRONT_TILE_D)
+LID_FASTEN_Y_REAR  = [FRONT_TILE_D + 20, (FRONT_TILE_D+DEPTH)/2, DEPTH - 10]; // rear-quad screws
+LID_BOSS_W         = 6;     // local wall-top widening (X, inward) to host the pilot
+LID_BOSS_Y         = 8;     // wall-top boss length along Y
+LID_WALL_PILOT_DEPTH = 6;   // self-tap pilot depth down from the wall top
+
+
+// ---------------------------------------------------------------------
 // FRONT I/O  (faceplate / io_subplate window)  —  Edge-alpha
 //   io_subplate window recessed into faceplate, 4x M3.  Default variant:
 //   HDMI + USB-A x2 + louvered blower EXHAUST grille. Future: + RJ45.
