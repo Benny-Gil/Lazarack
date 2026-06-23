@@ -75,8 +75,8 @@ module rear_panel() {
             // ---- 2. Bottom mounting flange (rests ON the lip top, -Y) --
             // Clipped BETWEEN the side walls so it doesn't clash with the
             // integral upstands; the M3 holes (below) bolt it into the lip.
-            translate([WALL_T, FLANGE_Y0, LIP_TOP_Z - EPS])
-                cube([BODY_W - 2*WALL_T, FLANGE_T + EPS, FLANGE_H]);
+            translate([WALL_T + FIT_CLEARANCE, FLANGE_Y0, LIP_TOP_Z - EPS])
+                cube([BODY_W - 2*WALL_T - 2*FIT_CLEARANCE, FLANGE_T + EPS, FLANGE_H]);
         }
 
         // ===== NEGATIVE FEATURES (difference) ========================
