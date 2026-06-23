@@ -65,7 +65,7 @@ LAP_SLOT_TRAVEL = 3;                  // X-elongation of the slot (in/out slop)
 // (mirror faceplate_left: replaces the old floor-tongue that collided with the
 //  solid lip and the HORIZONTAL bolts that hit no pilot)
 FLANGE_H     = 6;                     // flange height above the lip top (Z)
-FR_FLANGE_X1 = min(FR_X1, BODY_W - WALL_T); // clip flange to where the lip exists
+FR_FLANGE_X1 = min(FR_X1, BODY_W - WALL_T - FIT_CLEARANCE); // clip to the lip + clear the wall (loose-fit)
 
 // ---- io_subplate window: RIGHT part of the full window ----
 // Full window in assembly frame: X IO_WIN_X0 .. IO_WIN_X0+IO_SUB_W,

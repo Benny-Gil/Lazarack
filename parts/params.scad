@@ -217,11 +217,24 @@ REAR_PILOT_Y       = DEPTH - LIP_T/2;               // = 207  rear-lip pilot Y
 // ---------------------------------------------------------------------
 LID_WALL_CX_L      = WALL_T/2;                       // = 1.5    left  wall-top centerline X
 LID_WALL_CX_R      = BODY_W - WALL_T/2;             // = 210.5  right wall-top centerline X
-LID_FASTEN_Y_FRONT = [20, FRONT_TILE_D/2, FRONT_TILE_D - 10]; // front-quad screws (Y<FRONT_TILE_D)
-LID_FASTEN_Y_REAR  = [FRONT_TILE_D + 20, (FRONT_TILE_D+DEPTH)/2, DEPTH - 10]; // rear-quad screws
 LID_BOSS_W         = 6;     // local wall-top widening (X, inward) to host the pilot
 LID_BOSS_Y         = 8;     // wall-top boss length along Y
 LID_WALL_PILOT_DEPTH = 6;   // self-tap pilot depth down from the wall top
+// Three fastener Ys per wall per tile, spaced 0.15 / 0.5 / 0.85 across EACH
+// quad's OWN depth (clamped by the boss half-width) so they stay ordered and
+// non-overlapping for ANY board depth — fixed offsets merged/ran off-chassis
+// on a shallow board. The baseplate bosses + lid holes both read these.
+REAR_QUAD_D        = DEPTH - FRONT_TILE_D;           // rear quad depth (the smaller half)
+LID_FASTEN_Y_FRONT = [ max(LID_BOSS_Y/2,             0.15*FRONT_TILE_D),
+                                                     0.50*FRONT_TILE_D,
+                       min(FRONT_TILE_D - LID_BOSS_Y/2, 0.85*FRONT_TILE_D) ];
+LID_FASTEN_Y_REAR  = [ FRONT_TILE_D + max(LID_BOSS_Y/2, 0.15*REAR_QUAD_D),
+                       FRONT_TILE_D + 0.50*REAR_QUAD_D,
+                       DEPTH        - max(LID_BOSS_Y/2, 0.15*REAR_QUAD_D) ];
+// Loud lower-bound guard: a board too shallow can't host 3 spaced lid bosses.
+assert(REAR_QUAD_D >= 3*LID_BOSS_Y,
+       str("Board too SHALLOW for the lid: rear quad ", REAR_QUAD_D,
+           "mm can't host 3 spaced lid bosses (need >= ", 3*LID_BOSS_Y, "mm)."));
 
 
 // ---------------------------------------------------------------------

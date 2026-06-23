@@ -47,7 +47,7 @@ TILE_W          = TILE_X1 - TILE_X0;    // = FACE_TILE_W
 // the bolt always lands in a real pilot. (Replaces the old floor-standing
 // tongue, which grew +Y straight into the solid lip and bolted into nothing.)
 FLANGE_H        = 6;                    // flange height above the lip top (Z)
-FLANGE_X0       = max(TILE_X0, WALL_T); // clip flange to where the lip exists (X>=WALL_T)
+FLANGE_X0       = max(TILE_X0, WALL_T + FIT_CLEARANCE); // clip to the lip + clear the wall (loose-fit)
 
 // ---- center-seam BOLTED-OVERLAP geometry (seam plane = X = FACE_SPLIT_X) --
 // The LEFT tile owns the lap TONGUE; the RIGHT tile owns the matching rebate.
